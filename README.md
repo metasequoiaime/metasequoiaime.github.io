@@ -10,6 +10,6 @@
 
 <https://msime.app/docs>
 
-## 问题反馈
+## Bug 反馈 or 功能建议
 
-提交 issue 到本项目的 issue 区。
+提交 issue 到本项目的 [issue](https://github.com/metasequoiaime/metasequoiaime.github.io/issues) 区。
