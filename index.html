@@ -1,18 +1,157 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en" class="preload">
 
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/x-icon" href="/msime.ico" />
-  <link rel="stylesheet" href="/src/style.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>水杉输入法</title>
+  <title>Responsive Landing Page using HTML, CSS & Javascript</title>
+
+  <style>
+    html,
+    body {
+      background-color: #202020;
+    }
+
+    html.preload body {
+      opacity: 0;
+    }
+
+    html.ready body {
+      opacity: 1;
+      transition: opacity 60ms ease;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
 </head>
 
 <body>
-  <main id="app">
-    <h1>水杉输入法</h1>
-  </main>
+  <header class="container header">
+    <nav class="nav">
+      <div class="logo">
+        <img src="/msime.svg" alt="logo" />
+        <h2>水杉输入法</h2>
+      </div>
+
+      <div class="nav_menu" id="nav_menu">
+        <button class="close_btn" id="close_btn">
+          <i class="ri-close-fill"></i>
+        </button>
+
+        <ul class="nav_menu_list">
+          <li class="nav_menu_item">
+            <a href="#" class="nav_menu_link">下载</a>
+          </li>
+          <li class="nav_menu_item">
+            <a href="#" class="nav_menu_link">文档</a>
+          </li>
+          <li class="nav_menu_item">
+            <a href="#" class="nav_menu_link">价格</a>
+          </li>
+          <li class="nav_menu_item">
+            <a href="#" class="nav_menu_link">源码</a>
+          </li>
+          <li class="nav_menu_item">
+            <a href="#" class="nav_menu_link">常见问题</a>
+          </li>
+          <li class="nav_menu_item">
+            <a href="#" class="nav_menu_link">关于</a>
+          </li>
+        </ul>
+      </div>
+
+      <button class="toggle_btn" id="toggle_btn">
+        <i class="ri-menu-line"></i>
+      </button>
+    </nav>
+  </header>
+
+  <section class="wrapper">
+    <div class="container">
+      <div class="hero">
+        <div class="hero-content">
+          <h1 class="main-heading">
+            改善 Windows 的中英文输入体验
+          </h1>
+          <p class="info-text">
+            尊重用户的输入法
+          </p>
+
+          <div class="btn_wrapper">
+            <button class="btn view_more_btn">
+              下载 <i class="ri-download-line"></i>
+            </button>
+
+            <button class="btn documentation_btn">文档</button>
+          </div>
+        </div>
+
+        <div class="hero-image">
+          <div class="screenshot_img_wrapper">
+            <img src="/img/typing_words01.gif" alt="ime-img" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrapper">
+    <div class="container" data-aos="fade-up" data-aos-duration="1000">
+      <div class="grid-cols-3">
+        <div class="grid-col-item">
+          <div class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div class="featured_info">
+            <span class="title">快速响应</span>
+            <p>
+              C++ 编写，无任何额外输入无关模块，保证输入法的高性能和低资源占用，提供流畅的输入体验。
+            </p>
+          </div>
+        </div>
+        <div class="grid-col-item">
+          <div class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div class="featured_info">
+            <span class="title">功能丰富</span>
+            <p>
+              支持多种输入方式（拼音、双拼、五笔），提供丰富的词库和智能纠错功能，满足不同用户的输入需求。
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-col-item">
+          <div class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </div>
+          <div class="featured_info">
+            <span class="title">界面优美</span>
+            <p>
+              初始主题采用了 Windows11 的 Fluent Design 设计语言，后续会提供更多主题供用户选择。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>© 2026 <a href="https://github.com/fanlusky" target="_blank" rel="noreferrer">fanlusky</a>@乱序楼</footer>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js"></script>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 
 </html>
