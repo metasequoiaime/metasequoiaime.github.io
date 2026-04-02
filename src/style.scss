@@ -53,7 +53,7 @@ button {
 }
 /* ==== CONTAINER ==== */
 .container {
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
 }
 @media screen and (min-width: 1040px) {
@@ -121,9 +121,17 @@ button {
   color: var(--lg-heading);
   z-index: 4;
 }
+.btn-toggle .nav-icon {
+  width: 1.2em;
+  height: 1.2em;
+}
 .nav-menu,
 .btn-close {
   display: none;
+}
+.btn-close .nav-icon {
+  width: 25px;
+  height: 25px;
 }
 .show {
   right: 3% !important;
@@ -211,8 +219,11 @@ button {
   margin-right: 10px;
   box-shadow: 0 0.5rem 1.5rem rgba(22, 28, 45, 0.1);
 }
-.btn-download i {
+.btn-download .btn-icon {
   margin-left: 0.7rem;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: middle;
 }
 .btn-download:hover {
   transition:
@@ -270,10 +281,9 @@ button {
   width: 100%;
   line-height: 40px;
 }
-.feature-icon svg {
+.feature-icon img {
   width: 30px;
   height: 30px;
-  color: var(--icon-color);
 }
 .feature-info {
   width: 100%;
