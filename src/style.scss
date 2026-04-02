@@ -1,11 +1,8 @@
-/* ==== "Inter" FONT-FAMILY FROM FONTS.GOOGLE.COM  ==== */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Noto+Sans+SC:wght@400;500;600&display=swap");
-/* ==== ROOT RESET ==== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Noto Sans SC", "Inter", sans-serif;
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
 *,
 *::before,
@@ -31,7 +28,7 @@
   --font-size-body-text: clamp(14px, 1.6vw, 16px);
   --h1-font-size: calc(var(--font-size-body-text) * 2.4);
   --h2-font-size: calc(var(--h1-font-size) - 15px);
-  --h3-font-size: calc(var(var(--h2-font-size)) - 8px);
+  --h3-font-size: calc(var(--h2-font-size) - 8px);
 }
 
 /* ==== RESET HTML ==== */
@@ -96,36 +93,36 @@ button {
   line-height: 1;
 }
 /* ====  NAV-MENU  ==== */
-.nav_menu_list {
+.nav-list {
   display: flex;
   align-items: center;
   gap: 2rem;
   color: var(--text-body);
 }
-.nav_menu_list .nav_menu_item {
+.nav-list .nav-item {
   margin: 0;
 }
-.nav_menu_item .nav_menu_link,
-.nav_menu_item .nav_menu_link:link,
-.nav_menu_item .nav_menu_link:visited,
-.nav_menu_item .nav_menu_link:active,
-.nav_menu_item .nav_menu_link:hover,
-.nav_menu_item .nav_menu_link:focus,
-.nav_menu_item .nav_menu_link:focus-visible {
+.nav-item .nav-link,
+.nav-item .nav-link:link,
+.nav-item .nav-link:visited,
+.nav-item .nav-link:active,
+.nav-item .nav-link:hover,
+.nav-item .nav-link:focus,
+.nav-item .nav-link:focus-visible {
   font-size: 16.5px;
   line-height: 27px;
   color: inherit;
   text-transform: capitalize;
   letter-spacing: 0.5px;
 }
-.toggle_btn {
+.btn-toggle {
   font-size: 20px;
   font-weight: 600;
   color: var(--lg-heading);
   z-index: 4;
 }
-.nav_menu,
-.close_btn {
+.nav-menu,
+.btn-close {
   display: none;
 }
 .show {
@@ -140,17 +137,6 @@ button {
   margin-bottom: 5rem;
 }
 
-.wrapper .title {
-  font-size: var(--h2-font-size);
-}
-
-.grid-cols-2 {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 4rem;
-}
 .hero {
   width: 100%;
   display: flex;
@@ -171,26 +157,25 @@ button {
   flex-direction: column;
   align-items: center;
 }
-.grid-item-1 {
-  padding-top: 5rem;
-  padding-left: 1.5rem;
-}
-.main-heading {
-  font-weight: 300;
+
+.hero-title {
+  font-family: "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+  font-weight: 350;
   font-size: var(--h1-font-size);
   line-height: 1.1;
 }
-.main-heading span {
+.hero-title span {
   color: var(--primary-color);
 }
-.info-text {
+.hero-desc {
+  font-family: "Microsoft YaHei", "Source Han Sans SC", sans-serif;
   margin-top: 1.5rem;
   font-size: 18px;
   line-height: 28px;
   letter-spacing: 2px;
   color: var(--text-body);
 }
-.btn_wrapper {
+.hero-buttons {
   margin-top: 3.5rem;
   display: flex;
   width: 100%;
@@ -212,7 +197,7 @@ button {
   transform: translateY(-3px);
   background-color: var(--btn-hover-color);
 }
-.view_more_btn {
+.btn-download {
   width: 160px;
   height: 55px;
   display: flex;
@@ -226,16 +211,16 @@ button {
   margin-right: 10px;
   box-shadow: 0 0.5rem 1.5rem rgba(22, 28, 45, 0.1);
 }
-.view_more_btn i {
+.btn-download i {
   margin-left: 0.7rem;
 }
-.view_more_btn:hover {
+.btn-download:hover {
   transition:
     box-shadow 0.25s ease,
     transform 0.25s ease;
   background-color: #428fcf;
 }
-.documentation_btn {
+.btn-docs {
   width: 160px;
   height: 55px;
   font-size: 18px;
@@ -245,23 +230,20 @@ button {
   color: var(--btn-secondary-text);
   box-shadow: 0 0.5rem 1.5rem rgba(22, 28, 45, 0.1);
 }
-.documentation_btn:hover {
+.btn-docs:hover {
   background-color: #484a4c;
   transition:
     box-shadow 0.25s ease,
     transform 0.25s ease;
 }
-.grid-item-2 {
-  width: 100%;
-  height: 100%;
-}
-.screenshot_img_wrapper {
+
+.hero-screenshot {
   margin-top: 30px;
   width: 100%;
   max-width: 70%;
   height: auto;
 }
-.screenshot_img_wrapper img {
+.hero-screenshot img {
   display: block;
   width: 100%;
   height: auto;
@@ -272,7 +254,7 @@ button {
   box-shadow: 0 10px 20px rgba(8, 8, 8, 1); /* 用阴影来遮掩 gif 的边缘，从而让窗口圆角更好看 */
 }
 
-.grid-cols-3 {
+.features-grid {
   width: 100%;
   height: 100%;
   display: grid;
@@ -281,29 +263,29 @@ button {
   row-gap: 2rem;
   padding: 1rem;
 }
-.grid-col-item {
+.feature-card {
   height: 100%;
 }
-.icon {
+.feature-icon {
   width: 100%;
   line-height: 40px;
 }
-.icon svg {
+.feature-icon svg {
   width: 30px;
   height: 30px;
   color: var(--icon-color);
 }
-.featured_info {
+.feature-info {
   width: 100%;
 }
-.featured_info span {
+.feature-title {
   width: 100%;
   display: block;
   font-size: 21px;
   line-height: 33px;
   color: var(--lg-heading);
 }
-.featured_info p {
+.feature-info p {
   display: block;
   width: 100%;
   margin-top: 7px;
@@ -335,10 +317,10 @@ footer a:hover {
 
 /* ==== MEDIA QURIES FOR RESPONSIVE DESIGN ==== */
 @media screen and (min-width: 768px) {
-  .toggle_btn {
+  .btn-toggle {
     display: none;
   }
-  .nav_menu {
+  .nav-menu {
     display: block;
   }
 }
@@ -347,7 +329,7 @@ footer a:hover {
   .logo h2 {
     font-size: var(--h2-font-size);
   }
-  .nav_menu {
+  .nav-menu {
     position: fixed;
     width: 93%;
     height: 100%;
@@ -361,25 +343,25 @@ footer a:hover {
     z-index: 50;
     transition: 0.4s;
   }
-  .nav_menu_list {
+  .nav-list {
     flex-direction: column;
     align-items: flex-start;
     margin-top: 4rem;
   }
-  .nav_menu_list .nav_menu_item {
+  .nav-list .nav-item {
     margin: 1rem 0;
   }
-  .nav_menu_item .nav_menu_link {
+  .nav-item .nav-link {
     font-size: 18px;
   }
-  .close_btn {
+  .btn-close {
     display: block;
     position: absolute;
     right: 10%;
     font-size: 25px;
     color: var(--link-color);
   }
-  .close_btn:hover {
+  .btn-close:hover {
     color: #fff;
   }
   .wrapper {
@@ -388,20 +370,20 @@ footer a:hover {
   .hero-content {
     padding-left: 0rem;
   }
-  .main-heading {
+  .hero-title {
     font-size: var(--h1-font-size);
     line-height: 1.1;
   }
-  .view_more_btn {
+  .btn-download {
     width: 140px;
     height: 55px;
     font-size: 13.5px;
     margin-right: 1rem;
   }
-  .grid-cols-3 {
+  .features-grid {
     grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
   }
-  .featured_info p {
+  .feature-info p {
     line-height: 23px;
     font-size: 14px;
   }
@@ -414,36 +396,33 @@ footer a:hover {
   .wrapper {
     padding-top: 3rem;
   }
-  .grid-cols-2 {
-    grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
-  }
   .hero-content {
     max-width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
   }
-  .main-heading {
+  .hero-title {
     font-size: var(--h1-font-size);
     text-align: center;
     line-height: 1.1;
   }
-  .info-text {
+  .hero-desc {
     font-size: 15px;
     text-align: center;
     padding: 0.7rem;
   }
-  .btn_wrapper {
+  .hero-buttons {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .team_img_wrapper {
+  .hero-screenshot {
     width: auto;
     height: auto;
   }
-  .featured_info span {
+  .feature-title {
     font-size: 19px;
   }
 }
