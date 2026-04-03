@@ -54,7 +54,7 @@ if (heroVideo && "IntersectionObserver" in window) {
       if (isInView) {
         safePlay();
       }
-    }, 160);
+    }, 500);
   };
 
   observer.observe(heroVideo);
