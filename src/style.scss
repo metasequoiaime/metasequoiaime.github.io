@@ -141,7 +141,6 @@ button {
   width: 100%;
   padding-left: 1.7rem;
   padding-right: 1.7rem;
-  padding-top: 5rem;
   margin-bottom: 5rem;
 }
 
@@ -164,12 +163,13 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 6rem;
 }
 
 .hero-title {
   font-family: "Source Han Sans SC", "Microsoft YaHei", sans-serif;
-  font-weight: 350;
-  font-size: var(--h1-font-size);
+  font-weight: 500;
+  font-size: 35px;
   line-height: 1.1;
 }
 .hero-title span {
@@ -307,7 +307,7 @@ button {
 footer {
   width: 100%;
   margin-top: 6rem;
-  min-height: 80px;
+  min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -315,7 +315,6 @@ footer {
   color: var(--text-body);
   text-align: center;
   background: rgb(25, 25, 25);
-  // border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 footer a {
   color: #447aaf;
@@ -379,9 +378,10 @@ footer a:hover {
   }
   .hero-content {
     padding-left: 0rem;
+    margin-top: 3rem;
   }
   .hero-title {
-    font-size: var(--h1-font-size);
+    font-size: 22px;
     line-height: 1.1;
   }
   .features-grid {
@@ -398,7 +398,6 @@ footer a:hover {
 
 @media screen and (max-width: 991px) {
   .wrapper {
-    padding-top: 3rem;
   }
   .hero-content {
     max-width: 100%;
@@ -407,9 +406,10 @@ footer a:hover {
     align-items: center;
   }
   .hero-title {
-    font-size: var(--h1-font-size);
+    font-size: 32px;
     text-align: center;
     line-height: 1.1;
+    font-weight: 500;
   }
   .hero-desc {
     font-size: 15px;
@@ -429,4 +429,8 @@ footer a:hover {
   .feature-title {
     font-size: 19px;
   }
+}
+
+.lxl {
+  margin-left: 2px;
 }
