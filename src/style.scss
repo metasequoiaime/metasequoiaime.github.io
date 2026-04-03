@@ -324,28 +324,29 @@ button {
   max-width: 85%;
   height: auto;
   position: relative;
-  border-radius: 12px;
   background-color: #0f0f0f;
   isolation: isolate;
 }
 
+.hero-screenshot video,
 .hero-screenshot img {
   display: block;
-  width: 100%;
+  width: auto;
   height: auto;
   max-width: 100%;
   object-fit: contain;
-  transform: translateZ(0);
-  will-change: transform;
+}
+
+.hero-screenshot video {
+  background-color: #0f0f0f;
 }
 
 .hero-screenshot::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 12px;
+  /* 用阴影来遮掩 webm 的边缘，从而让窗口圆角更好看 */
   box-shadow: 0 10px 20px rgba(8, 8, 8, 1);
-  /* 用阴影来遮掩 gif 的边缘，从而让窗口圆角更好看 */
   pointer-events: none;
   z-index: -1;
 }
