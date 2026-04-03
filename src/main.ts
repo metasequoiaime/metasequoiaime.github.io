@@ -20,14 +20,22 @@ if (navId && closeBtnId) {
 
 const heroVideo = document.querySelector<HTMLVideoElement>(".hero-media");
 if (heroVideo && "IntersectionObserver" in window) {
+  let isInView = false;
+  let scrollPauseTimer: number | undefined;
+
+  const safePlay = () => {
+    const maybePromise = heroVideo.play();
+    if (maybePromise && typeof maybePromise.catch === "function") {
+      maybePromise.catch(() => { });
+    }
+  };
+
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (entry.isIntersecting) {
-          const maybePromise = heroVideo.play();
-          if (maybePromise && typeof maybePromise.catch === "function") {
-            maybePromise.catch(() => { });
-          }
+        isInView = entry.isIntersecting;
+        if (isInView) {
+          safePlay();
         } else {
           heroVideo.pause();
         }
@@ -36,5 +44,19 @@ if (heroVideo && "IntersectionObserver" in window) {
     { threshold: 0.25 }
   );
 
+  const onScroll = () => {
+    if (!isInView) return;
+    heroVideo.pause();
+    if (scrollPauseTimer) {
+      window.clearTimeout(scrollPauseTimer);
+    }
+    scrollPauseTimer = window.setTimeout(() => {
+      if (isInView) {
+        safePlay();
+      }
+    }, 160);
+  };
+
   observer.observe(heroVideo);
+  window.addEventListener("scroll", onScroll, { passive: true });
 }
