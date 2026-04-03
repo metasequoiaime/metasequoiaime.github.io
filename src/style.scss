@@ -430,6 +430,10 @@ footer a:hover {
 }
 
 @media screen and (max-width: 768px) {
+  .header {
+    padding: 0 0rem;
+  }
+
   .logo h2 {
     font-size: var(--h2-font-size);
   }
