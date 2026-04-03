@@ -18,45 +18,35 @@ if (navId && closeBtnId) {
   });
 }
 
-const heroVideo = document.querySelector<HTMLVideoElement>(".hero-media");
-if (heroVideo && "IntersectionObserver" in window) {
-  let isInView = false;
-  let scrollPauseTimer: number | undefined;
+const headerWrap = document.querySelector<HTMLElement>(".header-wrap");
+if (headerWrap) {
+  let lastScrollY = window.scrollY;
+  let ticking = false;
 
-  const safePlay = () => {
-    const maybePromise = heroVideo.play();
-    if (maybePromise && typeof maybePromise.catch === "function") {
-      maybePromise.catch(() => { });
+  const updateHeader = () => {
+    const currentY = window.scrollY;
+    const delta = currentY - lastScrollY;
+    const shouldHide = delta > 8 && currentY > 60;
+    const shouldShow = delta < -8 || currentY <= 10;
+
+    if (shouldHide) {
+      headerWrap.classList.add("header--hidden");
+    } else if (shouldShow) {
+      headerWrap.classList.remove("header--hidden");
     }
+
+    lastScrollY = currentY;
+    ticking = false;
   };
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        isInView = entry.isIntersecting;
-        if (isInView) {
-          safePlay();
-        } else {
-          heroVideo.pause();
-        }
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateHeader);
+        ticking = true;
       }
     },
-    { threshold: 0.25 }
+    { passive: true }
   );
-
-  const onScroll = () => {
-    if (!isInView) return;
-    heroVideo.pause();
-    if (scrollPauseTimer) {
-      window.clearTimeout(scrollPauseTimer);
-    }
-    scrollPauseTimer = window.setTimeout(() => {
-      if (isInView) {
-        safePlay();
-      }
-    }, 100);
-  };
-
-  observer.observe(heroVideo);
-  window.addEventListener("scroll", onScroll, { passive: true });
 }

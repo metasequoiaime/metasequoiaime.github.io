@@ -42,6 +42,7 @@ body {
   overflow-x: hidden;
   background-color: var(--bg);
   color: var(--text-body);
+  padding-top: var(--fixed-header-height);
 }
 
 ul li {
@@ -87,6 +88,27 @@ button {
 .header {
   height: var(--fixed-header-height);
   padding: 0 1.7rem;
+  z-index: 60;
+  // background-color: var(--bg);
+  transition: transform 0.25s ease;
+  will-change: transform;
+}
+
+.header-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: var(--fixed-header-height);
+  z-index: 60;
+  background-color: #292929ac;
+  transition: transform 0.25s ease;
+  will-change: transform;
+}
+
+.header--hidden {
+  transform: translateY(-100%);
 }
 
 /* ==== NAV ==== */
@@ -97,6 +119,7 @@ button {
   align-items: center;
   justify-content: space-between;
 }
+
 
 /* ==== LOGO ==== */
 .logo {

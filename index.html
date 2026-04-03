@@ -19,45 +19,47 @@
 </head>
 
 <body>
-  <header class="container header">
-    <nav class="nav">
-      <a class="logo" href="/">
-        <img src="/msime.svg" alt="logo" />
-        <h2>水杉输入法</h2>
-      </a>
+  <div class="header-wrap">
+    <header class="container header">
+      <nav class="nav">
+        <a class="logo" href="/">
+          <img src="/msime.svg" alt="logo" />
+          <h2>水杉输入法</h2>
+        </a>
 
-      <div class="nav-menu" id="nav-menu">
-        <button class="btn-close" id="btn-close">
-          <img src="/img/icons/Close_round.svg" alt="close" class="nav-icon" />
+        <div class="nav-menu" id="nav-menu">
+          <button class="btn-close" id="btn-close">
+            <img src="/img/icons/Close_round.svg" alt="close" class="nav-icon" />
+          </button>
+
+          <ul class="nav-list">
+            <li class="nav-item">
+              <a href="https://github.com/metasequoiaime/MetasequoiaImeTsf" class="nav-link">下载</a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link">文档</a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link">价格</a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link">开源代码</a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link">常见问题</a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link">关于</a>
+            </li>
+          </ul>
+        </div>
+
+        <button class="btn-toggle" id="btn-toggle">
+          <img src="/img/icons/Menu.svg" alt="menu" class="nav-icon" />
         </button>
-
-        <ul class="nav-list">
-          <li class="nav-item">
-            <a href="https://github.com/metasequoiaime/MetasequoiaImeTsf" class="nav-link">下载</a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">文档</a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">价格</a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">开源代码</a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">常见问题</a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">关于</a>
-          </li>
-        </ul>
-      </div>
-
-      <button class="btn-toggle" id="btn-toggle">
-        <img src="/img/icons/Menu.svg" alt="menu" class="nav-icon" />
-      </button>
-    </nav>
-  </header>
+      </nav>
+    </header>
+  </div>
 
   <section class="wrapper">
     <div class="container">
@@ -84,7 +86,7 @@
 
         <div class="hero-image">
           <div class="hero-screenshot">
-            <video class="hero-media" autoplay muted loop playsinline preload="none" aria-label="ime-img">
+            <video class="hero-media" autoplay muted loop playsinline preload="metadata" aria-label="ime-img">
               <source src="/img/typing_words.webm" type="video/webm" />
             </video>
           </div>
@@ -150,7 +152,7 @@
           <div class="feature-info">
             <span class="feature-title">绿色环保</span>
             <p>
-              无广告，无弹窗。没有输入法无关的后台进程偷偷运行。低碳环保，绿色健康。
+              无广告，无弹窗、克制多余功能，只保留输入法相关的组件，没有输入法无关的后台进程偷偷运行。低碳环保，绿色健康。
             </p>
           </div>
         </div>
