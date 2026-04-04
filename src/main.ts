@@ -9,12 +9,14 @@ const closeBtnId = document.getElementById("btn-close");
 if (navId && toggleBtnId) {
   toggleBtnId.addEventListener("click", () => {
     navId.classList.add("show");
+    document.body.classList.add("menu-open");
   });
 }
 
 if (navId && closeBtnId) {
   closeBtnId.addEventListener("click", () => {
     navId.classList.remove("show");
+    document.body.classList.remove("menu-open");
   });
 }
 

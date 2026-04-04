@@ -45,6 +45,10 @@ body {
   padding-top: var(--fixed-header-height);
 }
 
+body.menu-open {
+  overflow: hidden;
+}
+
 ul li {
   list-style-type: none;
 }
@@ -102,7 +106,7 @@ button {
   width: 100%;
   height: var(--fixed-header-height);
   z-index: 60;
-  background-color: #292929ac;
+  background-color: #303030;
   transition: transform 0.25s ease;
   will-change: transform;
 }
@@ -119,7 +123,6 @@ button {
   align-items: center;
   justify-content: space-between;
 }
-
 
 /* ==== LOGO ==== */
 .logo {
@@ -214,7 +217,9 @@ button {
 }
 
 .show {
-  right: 3% !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 }
 
 /* ====  WRAPPER ==== */
@@ -479,18 +484,24 @@ footer a:hover {
 
   .nav-menu {
     position: fixed;
-    width: 93%;
-    height: 95%;
-    display: block;
-    top: 2%;
-    right: -100%;
-    background-color: #252525;
+    inset: 0;
+    height: 96vh;
+    margin-top: 2vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #2a2a2a;
     padding: 3rem;
-    border-radius: 10px;
-    box-shadow: var(--menu-shadow);
     z-index: 50;
-    transition: 0.3s;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease;
     text-align: center;
+    border-radius: 12px;
   }
 
   .nav-list {
@@ -510,7 +521,8 @@ footer a:hover {
   .btn-close {
     display: block;
     position: absolute;
-    right: 10%;
+    top: 1.2rem;
+    right: 1.5rem;
     font-size: 25px;
     color: var(--link-color);
   }
@@ -548,7 +560,8 @@ footer a:hover {
 }
 
 @media screen and (max-width: 991px) {
-  .wrapper {}
+  .wrapper {
+  }
 
   .hero-content {
     max-width: 100%;
