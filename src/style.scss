@@ -469,7 +469,36 @@ footer a:hover {
   }
 
   .nav-menu {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--fixed-header-height);
+    width: 90%;
+    margin: 0 auto;
+    padding: 0 1.7rem;
+    z-index: 61;
+  }
+}
+
+@media screen and (min-width: 1040px) {
+  .nav-menu {
+    width: 100%;
+  }
+}
+
+@media screen and (min-width: 1400px) {
+  .nav-menu {
+    width: 80%;
+  }
+}
+
+@media screen and (min-width: 1600px) {
+  .nav-menu {
+    width: 60%;
   }
 }
 
@@ -485,12 +514,11 @@ footer a:hover {
   .nav-menu {
     position: fixed;
     inset: 0;
-    height: 96vh;
-    margin-top: 2vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: right;
     background-color: #2a2a2a;
     padding: 3rem;
     z-index: 50;
@@ -501,13 +529,12 @@ footer a:hover {
       opacity 0.2s ease,
       visibility 0.2s ease;
     text-align: center;
-    border-radius: 12px;
   }
 
   .nav-list {
     flex-direction: column;
     align-items: center;
-    margin-top: 3rem;
+    margin-top: 2rem;
   }
 
   .nav-list .nav-item {
@@ -607,4 +634,5 @@ footer a:hover {
 
 .lxl {
   margin-left: 2px;
+  cursor: pointer;
 }
