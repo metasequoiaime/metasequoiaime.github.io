@@ -62,6 +62,8 @@ button {
   border: none;
   outline: none;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
 }
 
 /* ==== CONTAINER ==== */
@@ -207,11 +209,39 @@ button {
   font-weight: 600;
   color: var(--lg-heading);
   z-index: 4;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
 }
 
 .btn-toggle .nav-icon {
   width: 1.2em;
   height: 1.2em;
+}
+
+.btn-toggle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140%;
+  padding-top: 140%;
+  background: rgba(110, 160, 255, 0.28);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.4s ease,
+    opacity 0.6s ease;
+}
+
+.btn-toggle:active::after {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  transition:
+    transform 0.2s ease,
+    opacity 0.3s ease;
 }
 
 .nav-menu,
@@ -595,8 +625,7 @@ footer a:hover {
 }
 
 @media screen and (max-width: 991px) {
-  .wrapper {
-  }
+  .wrapper {}
 
   .hero-content {
     max-width: 100%;
