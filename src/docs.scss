@@ -4,6 +4,12 @@
   padding: 2.25rem 0 0;
 }
 
+/* 无侧栏的内容页原本整行铺满，1440px 下一行 65 个汉字 —— 视线扫回行首容易串行。文档页因为有侧栏挤着，一行 46 字，读起来明显舒服，这里对齐到同一个尺度。校验值那类代码块和表格不受限制，它们需要宽度。 */
+.content-page .docs-content > *:not(pre):not(table):not(.doc-card),
+.content-page .doc-card > *:not(pre):not(table) {
+  max-width: 42em;
+}
+
 .docs-shell {
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
@@ -135,6 +141,92 @@
   padding-left: 26px !important;
   font-weight: 400 !important;
   font-size: 13.5px !important;
+}
+
+/* ==== DOWNLOAD · 顶部下载入口 ==== */
+/* 在这之前，这一页最主要的操作是正文项目符号里的一个文字链接，和旁边的镜像链接、说明文字同等分量。这块面板把它提到正文之前，用主色描边说明「这是本页要做的那件事」。平台标签沿用文档页那套，站内同一个概念只用一种控件。 */
+.download-panel {
+  margin-bottom: 16px;
+  padding: 20px 24px 18px;
+  border-radius: var(--radius-card);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--accent-ring);
+}
+
+.download-panel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.download-panel-action {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+}
+
+.download-panel-meta p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-content);
+}
+
+.download-panel-file {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px !important;
+}
+
+.download-panel-file code {
+  padding: 0.15em 0.4em;
+  border-radius: 6px;
+  background: var(--docs-code-bg);
+  color: var(--docs-code-text);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+.download-panel-signed,
+.download-panel-unsigned {
+  padding: 2px 9px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.download-panel-signed {
+  background: var(--accent-soft);
+  color: var(--icon-color);
+}
+
+/* 未签名不是装饰性的状态，配色要和「已签名」明确不同，别让人扫一眼就当成一样 */
+.download-panel-unsigned {
+  background: color-mix(in oklab, #d9822b 22%, transparent);
+  color: color-mix(in oklab, #d9822b 78%, var(--lg-heading));
+}
+
+.download-panel-note {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair);
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+@media screen and (max-width: 640px) {
+  .download-panel {
+    padding: 18px 18px 16px;
+  }
+
+  /* 窄屏上按钮铺满，是本页最该点的东西 */
+  .download-panel-action .btn {
+    width: 100%;
+  }
 }
 
 /* ==== CONTENT CARDS ==== */

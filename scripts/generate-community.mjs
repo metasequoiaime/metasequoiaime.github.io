@@ -1,13 +1,9 @@
 import { writeFile } from 'node:fs/promises';
 
-// public/community.json backs the home page's community section. It is generated rather than fetched
-// in the browser: the star history alone needs one request per 100 stargazers, and GitHub's anonymous
-// limit is 60 per hour per IP, so visitors behind a shared address would see it fail. Serving our own
-// file also keeps the promise the privacy page makes -- reading this site contacts no one but this site.
+// public/community.json backs the home page's community section. It is generated rather than fetched in the browser: the star history alone needs one request per 100 stargazers, and GitHub's anonymous limit is 60 per hour per IP, so visitors behind a shared address would see it fail. Serving our own file also keeps the promise the privacy page makes -- reading this site contacts no one but this site.
 const organisation = 'metasequoiaime';
 
-// Bots commit far more than people do; leaving them in would put github-actions at the top of a list
-// titled "core contributors".
+// Bots commit far more than people do; leaving them in would put github-actions at the top of a list titled "core contributors".
 const isBot = account =>
   account?.type === 'Bot' || /\[bot\]$/i.test(account?.login ?? '');
 
@@ -39,14 +35,11 @@ export function aggregateContributors(perRepository, limit = 12) {
 /**
  * Turn raw `starred_at` timestamps into a cumulative monthly series.
  *
- * Monthly buckets, not one point per star: the chart is about the shape of the curve, and 1400 points
- * would draw the same line while making the file 30x bigger. Months with no new stars still get a
- * point so a quiet stretch reads as a plateau instead of a straight line between distant dates.
+ * Monthly buckets, not one point per star: the chart is about the shape of the curve, and 1400 points would draw the same line while making the file 30x bigger. Months with no new stars still get a point so a quiet stretch reads as a plateau instead of a straight line between distant dates.
  */
 export function monthlyStarHistory(timestamps) {
   const months = timestamps
-    // The string check has to come first: `new Date(null)` is not an invalid date, it is 1970-01-01,
-    // so a single missing timestamp would stretch the series back fifty years.
+    // The string check has to come first: `new Date(null)` is not an invalid date, it is 1970-01-01, so a single missing timestamp would stretch the series back fifty years.
     .filter(value => typeof value === 'string')
     .map(value => new Date(value))
     .filter(date => !Number.isNaN(date.getTime()))

@@ -1,13 +1,8 @@
 name: Sync community snapshot
 
-# public/community.json backs the home page's star history and contributor list. It is generated here
-# rather than fetched by the browser: the star history needs one request per 100 stargazers, and
-# GitHub's anonymous limit is 60 per hour per IP, so visitors sharing an address would see it fail.
-# Generating it also keeps the promise the privacy page makes -- reading the site contacts no one else.
+# public/community.json backs the home page's star history and contributor list. It is generated here rather than fetched by the browser: the star history needs one request per 100 stargazers, and GitHub's anonymous limit is 60 per hour per IP, so visitors sharing an address would see it fail. Generating it also keeps the promise the privacy page makes -- reading the site contacts no one else.
 #
-# Unlike the release manifest this PR is not auto-merged. scripts/enable-manifest-automerge.py accepts
-# a diff of exactly public/update.json, and widening that allowlist is a change to the automation's
-# security boundary, not a side effect of adding a second data file.
+# Unlike the release manifest this PR is not auto-merged. scripts/enable-manifest-automerge.py accepts a diff of exactly public/update.json, and widening that allowlist is a change to the automation's security boundary, not a side effect of adding a second data file.
 
 on:
   schedule:

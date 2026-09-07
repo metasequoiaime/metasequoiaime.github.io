@@ -53,7 +53,7 @@ export function CommunitySection() {
   return (
     <section className="container section">
       <div className="section-eyebrow" data-reveal>
-        <span>03 · 社区</span>
+        <span>社区</span>
         <span className="section-rule" />
       </div>
 

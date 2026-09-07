@@ -7,9 +7,9 @@ import windowsGuide from "../vendor/MSIME-Docs/guides/windows.md?raw";
 import { renderContent } from "./markdown";
 import { PageHero } from "./page-content";
 import { usePageMeta } from "./page-meta";
+import { detectPlatform } from "./platform";
 
-// The site distributes Windows, macOS and Linux builds, but this page only ever rendered the Windows
-// guide -- the other three guides were written and sitting in the submodule unreferenced.
+// The site distributes Windows, macOS and Linux builds, but this page only ever rendered the Windows guide -- the other three guides were written and sitting in the submodule unreferenced.
 const GUIDES = [
   { id: "windows", label: "Windows", source: windowsGuide },
   { id: "macos", label: "macOS", source: macosGuide },
@@ -19,13 +19,8 @@ const GUIDES = [
 
 type GuideId = (typeof GUIDES)[number]["id"];
 
-/** 没有 ?platform= 时按 UA 猜，猜不出用 Windows。 */
-const guideIdFromUserAgent = (): GuideId => {
-  const ua = navigator.userAgent;
-  if (/Mac OS X|Macintosh/.test(ua)) return "macos";
-  if (/Linux/.test(ua) && !/Android/.test(ua)) return "linux";
-  return "windows";
-};
+/** 没有 ?platform= 时按 UA 猜。三个系统各自对应一份主指南，macOS 语音那份要自己点。 */
+const guideIdFromUserAgent = (): GuideId => detectPlatform();
 
 type TocEntry = { id: string; text: string; isSubItem: boolean };
 

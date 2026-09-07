@@ -986,14 +986,14 @@ html {
   animation: riseIn 0.62s cubic-bezier(0.2, 0.7, 0.2, 1) 0.24s both;
 }
 
+/* 原本 align-self: stretch，高度由左边的标题栏决定而不是由内容决定 —— 四个短数字被撑成一个 408x380 的空盒子，成了首屏第二大的元素却说得最少。改成贴合内容、与标题顶端对齐：右侧多出来的是留白，不再是一个画了边框的空箱子。 */
 .hero-stats {
   min-width: 0;
-  align-self: stretch;
+  align-self: start;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-content: center;
-  gap: 26px 30px;
-  padding: 30px;
+  gap: 20px 26px;
+  padding: 24px 26px;
   border-radius: var(--radius-card);
   background: var(--card-2);
   box-shadow: var(--card-soft), inset 0 0 0 1px var(--hair);
@@ -1001,7 +1001,7 @@ html {
 }
 
 .hero-stat-value {
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 600;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -1009,7 +1009,7 @@ html {
 }
 
 .hero-stat-value.is-text {
-  font-size: 26px;
+  font-size: 23px;
 }
 
 .hero-stat-label {
@@ -1033,6 +1033,9 @@ html {
 }
 
 .hero-screenshot-bar {
+  /* 窄屏上演示画面会被放大到超出自己的盒子，变换后的元素会盖到普通流内容上。标题栏定位一下才压得住它。 */
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -1064,12 +1067,20 @@ html {
   color: var(--text-muted);
 }
 
+/*
+ * 演示画面裁到有内容的那一块。
+ *
+ * 素材是 1346x994 的整窗录屏，而真正要给人看的东西 —— 正在输入的那行字和候选窗 —— 只占其中约 17%，其余是空白 Word 页面和状态栏。整帧铺出来的结果是：这个产品最有辨识度的部分在首屏里只有邮票大小。
+ *
+ * 卡片自己有标题栏和圆角，"这是一个窗口"由外框负责表达，所以裁掉录屏下半截不会显得残缺。宽屏保留顶部窗口 chrome（它说明这是真实应用里的输入），只压掉空白正文。
+ */
 .hero-screenshot video,
 .hero-screenshot img {
   display: block;
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  aspect-ratio: 1346 / 660;
+  object-fit: cover;
+  object-position: 50% 0;
 }
 
 .hero-screenshot video {
@@ -1138,6 +1149,7 @@ html {
 /* ==== HOME · OPEN SOURCE ==== */
 .open-card p {
   margin: 0 0 12px;
+  max-width: 42em;
   font-size: 15px;
   line-height: 1.8;
   color: var(--text-content);
@@ -1274,11 +1286,10 @@ html {
 }
 
 /* ==== HOME · 社区（Star 趋势与贡献者） ==== */
+/* 趋势图独占一行：时间序列越宽越好读，而贡献者按头像网格横排比竖成一长条更省纵向空间 */
 .community-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr);
   gap: 16px;
-  align-items: start;
 }
 
 .community-chart-card,
@@ -1325,12 +1336,11 @@ html {
   color: var(--text-muted);
 }
 
+/* 卡片里再套一条滚动条，等于把大部分贡献者藏在一个没人会去拖的地方。改成整块铺开、按宽度自动分列，谁在名单上一眼看得全。 */
 .community-people {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
   gap: 2px;
-  max-height: 292px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
 }
 
 .community-people a {
@@ -1513,14 +1523,54 @@ html {
   font-weight: 600;
 }
 
-@media screen and (max-width: 1080px) {
-  .community-grid {
-    grid-template-columns: minmax(0, 1fr);
+
+
+/* ==== 触摸设备的点击区域 ==== */
+/*
+ * 手指的落点比鼠标光标粗得多，36px 的图标按钮在触屏上很容易点偏。这里只在 pointer: coarse 下生效，桌面端的视觉密度一点不变。
+ *
+ * 顶栏那几个圆形控件用一层透明的伪元素把可点范围补到 44px，圆圈本身还是 36px —— 放大真实尺寸会把顶栏撑松。菜单项、页脚 chip 这类本来就是一行一行的，直接加高更实在，也不会让相邻两项的热区互相重叠。
+ */
+@media (pointer: coarse) {
+  .header-github,
+  .theme-button,
+  .btn-toggle {
+    position: relative;
   }
 
-  .community-people {
-    max-height: none;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  .header-github::after,
+  .theme-button::after,
+  .btn-toggle::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
+  .open-card .btn {
+    height: 44px;
+  }
+
+  .theme-option {
+    min-height: 44px;
+  }
+
+  .site-footer-chips a,
+  .site-footer-chips span,
+  .site-footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .community-link,
+  .star-chart-table summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 }
 
@@ -1743,6 +1793,15 @@ html {
 }
 
 @media screen and (max-width: 640px) {
+  /* 390px 宽时整窗缩放后候选窗里的字只剩 7px 高，等于没有。这里推到正在输入的那行上，宁可看不见窗口边框，也要让人看清它在做什么。 */
+  .hero-screenshot video,
+  .hero-screenshot img {
+    aspect-ratio: 4 / 3;
+    object-position: 32% 34%;
+    transform: scale(1.75);
+    transform-origin: 32% 34%;
+  }
+
   .hero {
     padding-top: 3rem;
   }

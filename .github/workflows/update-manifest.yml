@@ -1,12 +1,8 @@
 name: Sync update manifest
 
-# public/update.json is what the download page and the in-app "检查更新" both read, so a release that
-# is not mirrored here is invisible to users. This job keeps the file in step with MSIME-Windows
-# instead of relying on someone remembering to edit it by hand after every release.
+# public/update.json is what the download page and the in-app "检查更新" both read, so a release that is not mirrored here is invisible to users. This job keeps the file in step with MSIME-Windows instead of relying on someone remembering to edit it by hand after every release.
 #
-# The highest published installer version wins, prereleases included. /releases/latest is deliberately not used:
-# it skips prereleases, and every published release of this product is currently a prerelease, so it
-# answers 404 here.
+# The highest published installer version wins, prereleases included. /releases/latest is deliberately not used: it skips prereleases, and every published release of this product is currently a prerelease, so it answers 404 here.
 
 on:
   schedule:

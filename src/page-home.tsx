@@ -187,7 +187,7 @@ export function HomePage() {
 
       <section className="container section">
         <div className="section-eyebrow" data-reveal>
-          <span>01 · 能力</span>
+          <span>能力</span>
           <span className="section-rule" />
         </div>
 
@@ -204,7 +204,7 @@ export function HomePage() {
 
       <section className="container section">
         <div className="section-eyebrow" data-reveal>
-          <span>02 · 开源</span>
+          <span>开源</span>
           <span className="section-rule" />
         </div>
 
@@ -229,7 +229,7 @@ export function HomePage() {
 
       <section className="container section">
         <div className="section-eyebrow" data-reveal>
-          <span>04 · 平台与下载</span>
+          <span>平台与下载</span>
           <span className="section-rule" />
         </div>
 

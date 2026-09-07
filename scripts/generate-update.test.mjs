@@ -22,8 +22,7 @@ test('published Windows installer produces the existing update API', () => {
   assert.deepEqual(metadataFromRelease(release), expected);
 });
 
-// The download page renders its security note from these two fields, so getting them wrong is how a
-// page ends up telling users to verify a signature that is not there.
+// The download page renders its security note from these two fields, so getting them wrong is how a page ends up telling users to verify a signature that is not there.
 test('the installer digest and signing state come from the asset, not from prose', () => {
   const signed = {...release, assets: [{...release.assets[0], name: 'MetasequoiaIME_Setup_v0.0.9.2.exe'}]};
   assert.equal(metadataFromRelease(signed).signed, true);
