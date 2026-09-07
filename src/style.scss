@@ -140,13 +140,16 @@
   @include theme-dark;
 
   --fixed-header-height: 4.25rem;
-  --page-max: 1160px;
+  /* 1160 的死宽在 1920 上只占 60% 的屏、2560 上只占 45%，整站看着像一条窄带。改成跟着视口长、到 1600 封顶：卡片网格、平台列表、趋势图这些本来就该铺开。正文另有阅读上限，见下面 --reading-measure。 */
+  --page-max: min(1600px, 94vw);
   --page-gutter: clamp(1.25rem, 4vw, 3rem);
   --radius-card: 20px;
   /* 不列索引时正文那一列的宽度，取自文档页正文栏（容器 1064 减去 250 的侧栏和 32 的间距） */
   --content-measure: 49rem;
   --mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-size-body-text: clamp(14px, 1.6vw, 16px);
+  /* 大屏通常也坐得更远，正文跟着放大一档。阅读栏是定宽的，字号一大每行字数反而更少、更好读。 */
+  --reading-font: clamp(15.5px, 0.8vw, 17px);
   --h1-font-size: calc(var(--font-size-body-text) * 2.4);
   --h2-font-size: calc(var(--h1-font-size) - 15px);
   --h3-font-size: calc(var(--h2-font-size) - 8px);
@@ -967,6 +970,8 @@ html {
 
 .hero-desc {
   margin: 22px 0 0;
+  /* 容器放宽后这段会拉到 60 多字一行，末行常常只剩两个字。按字数收住，孤字就不会出现。 */
+  max-width: 40em;
   font-size: 17px;
   line-height: 1.85;
   color: var(--text-content);
