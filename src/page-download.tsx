@@ -2,11 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import downloadSource from "./content/download.md?raw";
-import { renderContent } from "./markdown";
-import { PageHero } from "./page-content";
-import { usePageMeta } from "./page-meta";
+import { ContentPage } from "./page-content";
 import { detectPlatform, PLATFORM_LABELS, PLATFORMS, type Platform } from "./platform";
-import { useReveal } from "./use-reveal";
 
 const RELEASES_PAGE_URL = "https://github.com/metasequoiaime/MSIME-Windows/releases";
 
@@ -178,31 +175,18 @@ export function DownloadPage() {
     return fillTemplate(manifest.data.version, manifest.data.releaseUrl, manifest.data);
   }, [manifest.isPending, manifest.data]);
 
-  const content = useMemo(() => (source === null ? null : renderContent(source, { sectioned: true })), [source]);
-  const heroTitle = useMemo(() => renderContent(downloadSource), []);
-
-  usePageMeta("下载 | 水杉输入法", "下载水杉输入法");
-  useReveal([content]);
-
   return (
-    <>
-      <PageHero
-        kicker={manifest.data ? `Windows v${manifest.data.version}` : "下载"}
-        title={heroTitle.title}
-        leadHtml={heroTitle.leadHtml}
-      />
-      <main className="content-page">
-        <div className="container">
-          <DownloadPanel manifest={manifest.data} />
-          <article
-            className="docs-content download-content"
-            id="download-content"
-            aria-live="polite"
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: 正文是本仓库自带 markdown 渲染出来的，代入的清单字段都经过上面的格式校验
-            dangerouslySetInnerHTML={{ __html: content?.bodyHtml ?? "" }}
-          />
-        </div>
-      </main>
-    </>
+    <ContentPage
+      documentTitle="下载 | 水杉输入法"
+      description="下载水杉输入法"
+      kicker={manifest.data ? `Windows v${manifest.data.version}` : "下载"}
+      source={source}
+      // 页头取未代入版本号的模板：正文会随清单重渲染，标题和摘要不该跟着闪一下
+      heroSource={downloadSource}
+      contentId="download-content"
+      contentClass="download-content"
+      sectioned
+      banner={<DownloadPanel manifest={manifest.data} />}
+    />
   );
 }

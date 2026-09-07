@@ -143,6 +143,8 @@
   --page-max: 1160px;
   --page-gutter: clamp(1.25rem, 4vw, 3rem);
   --radius-card: 20px;
+  /* 不列索引时正文那一列的宽度，取自文档页正文栏（容器 1064 减去 250 的侧栏和 32 的间距） */
+  --content-measure: 49rem;
   --mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-size-body-text: clamp(14px, 1.6vw, 16px);
   --h1-font-size: calc(var(--font-size-body-text) * 2.4);
@@ -1275,6 +1277,8 @@ html {
 }
 
 .page-hero-lead {
+  /* 页头摘要跟着正文栏的宽度走，不要横跨整幅 */
+  max-width: var(--content-measure);
   margin: 0;
   font-size: 17px;
   line-height: 1.8;

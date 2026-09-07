@@ -4,10 +4,20 @@
   padding: 2.25rem 0 0;
 }
 
-/* 无侧栏的内容页原本整行铺满，1440px 下一行 65 个汉字 —— 视线扫回行首容易串行。文档页因为有侧栏挤着，一行 46 字，读起来明显舒服，这里对齐到同一个尺度。校验值那类代码块和表格不受限制，它们需要宽度。 */
-.content-page .docs-content > *:not(pre):not(table):not(.doc-card),
-.content-page .doc-card > *:not(pre):not(table) {
-  max-width: 42em;
+/*
+ * 无侧栏的内容页原本整行铺满，1440px 下一行 65 个汉字，视线扫回行首容易串行；文档页因为有侧栏挤着是一行 46 字，读起来明显舒服。
+ *
+ * 收窄的是整列，不是列里的文字：只把文字收窄会让卡片右半边空出一大块死区，白底上的空洞比长行更难看。卡片跟着文字一起收，右边留出来的就是页面留白，和页头、顶栏 logo 左边缘对齐。
+ */
+/* 下载入口跨满两列，排在索引和正文之上 —— 它是这一页要做的那件事，不该缩在正文栏里 */
+.content-page .docs-shell > .download-panel {
+  grid-column: 1 / -1;
+}
+
+/* 小节太少（价格页只有两节）就不列索引，这时正文自己占一列。宽度仍按文档页那一栏来，左边缘和页头对齐，免得又回到一行 65 个汉字。 */
+.content-page .container:not(.docs-shell) .docs-content,
+.content-page .container:not(.docs-shell) .download-panel {
+  max-width: var(--content-measure);
 }
 
 .docs-shell {
