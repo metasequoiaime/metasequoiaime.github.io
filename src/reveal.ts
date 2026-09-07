@@ -23,6 +23,7 @@ document.documentElement.classList.add("has-reveal");
  */
 export const observeReveals = (root: ParentNode = document) => {
   const foldLine = window.innerHeight * (1 - FOLD_OFFSET_PERCENT / 100);
+  const observed: Element[] = [];
 
   root.querySelectorAll("[data-reveal]:not(.is-revealed)").forEach((element) => {
     if (element.getBoundingClientRect().top < foldLine) {
@@ -31,7 +32,11 @@ export const observeReveals = (root: ParentNode = document) => {
     }
 
     revealObserver.observe(element);
+    observed.push(element);
   });
-};
 
-observeReveals();
+  // 换页时把还没进过视口的节点退订。观察器对目标是强引用，客户端路由下这些节点已经从文档里摘掉了，不退订就再也不会有人放开它们。
+  return () => {
+    for (const element of observed) revealObserver.unobserve(element);
+  };
+};

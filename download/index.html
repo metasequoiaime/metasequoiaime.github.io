@@ -16,10 +16,6 @@
       } catch {
         document.documentElement.dataset.theme = "system";
       }
-      // preload 只是给 dev 兜底：那时样式由脚本注入，得先把整页遮住。构建产物的样式表是 head 里的阻塞资源，首帧就有样式，再遮一层只会让每次换页先画一帧空白。dev server 会把 /@vite/client 插在 head 最前面，用它区分两种环境。
-      if (!document.querySelector('script[src*="/@vite/client"]')) {
-        document.documentElement.classList.remove("preload");
-      }
     })();
   </script>
 
@@ -34,162 +30,28 @@
       background-color: inherit;
     }
 
-    html.preload body {
+    /* 页面由 React 渲染，样式到位之前先把挂载点遮住。只遮 #root，脚本被禁用时下面的提示还要看得见。 */
+    html.preload #root {
       visibility: hidden;
+    }
+
+    .noscript-note {
+      max-width: 40rem;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+      color: #9aa4b2;
+      font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.8;
     }
   </style>
 </head>
 
-<body><div id="root"></div>
-  <div class="header-wrap">
-    <header class="container header">
-      <a class="logo" href="/">
-        <img src="/msime-logo.png" width="34" height="34" decoding="async" alt="logo" />
-        <span class="logo-text">水杉输入法</span>
-      </a>
+<body>
+  <div id="root"></div>
 
-      <div class="header-actions">
-        <a class="header-github" href="https://github.com/metasequoiaime" target="_blank" rel="noreferrer">
-          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
-          <span>GitHub</span>
-        </a>
-
-        <div class="theme-switcher" id="theme-switcher">
-          <button class="theme-button" id="theme-button" type="button" aria-haspopup="true" aria-expanded="false">
-            <svg class="theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="4.2"></circle>
-              <path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"></path>
-            </svg>
-            <svg class="theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20.5 14.3A8.5 8.5 0 1 1 9.7 3.5a6.8 6.8 0 0 0 10.8 10.8z"></path>
-            </svg>
-          </button>
-          <div class="theme-options" id="theme-options" role="menu" aria-label="主题模式">
-            <button class="theme-option" type="button" role="menuitemradio" data-theme-choice="light">亮色</button>
-            <button class="theme-option" type="button" role="menuitemradio" data-theme-choice="dark">暗色</button>
-            <button class="theme-option" type="button" role="menuitemradio" data-theme-choice="system">跟随系统</button>
-          </div>
-        </div>
-
-        <button class="btn-toggle" id="btn-toggle" type="button" aria-label="打开导航菜单">
-          <img src="/img/icons/Menu.svg" alt="" class="nav-icon" />
-        </button>
-      </div>
-    </header>
-  </div>
-
-  <nav class="nav-menu" id="nav-menu" aria-label="站点导航">
-    <button class="btn-close" id="btn-close" type="button" aria-label="关闭导航菜单">
-      <img src="/img/icons/Close_round.svg" alt="" class="nav-icon" />
-    </button>
-
-    <ul class="nav-list">
-          <li class="nav-item">
-            <a href="/" class="nav-link"><img src="/img/icons/nav/home.svg" alt="" class="nav-link-icon" />首页</a>
-          </li>
-          <li class="nav-item">
-            <a href="/docs/" class="nav-link"><img src="/img/icons/nav/docs.svg" alt="" class="nav-link-icon" />文档</a>
-          </li>
-          <li class="nav-item">
-            <a href="/price/" class="nav-link"><img src="/img/icons/nav/price.svg" alt="" class="nav-link-icon" />价格</a>
-          </li>
-          <li class="nav-item">
-            <a href="/code/" class="nav-link"><img src="/img/icons/nav/code.svg" alt="" class="nav-link-icon" />开源代码</a>
-          </li>
-          <li class="nav-item">
-            <a href="/download/" class="nav-link" aria-current="page"><img src="/img/icons/nav/download.svg" alt="" class="nav-link-icon" />下载</a>
-          </li>
-          <li class="nav-item">
-            <a href="/about/" class="nav-link"><img src="/img/icons/nav/about.svg" alt="" class="nav-link-icon" />关于</a>
-          </li>
-    </ul>
-  </nav>
-
-  <script>
-    // 当前 tab 的胶囊从上一页的位置滑过来。在解析阶段就把偏移算好，首帧不会先画到终点再跳回去。
-    (() => {
-      try {
-        const here = location.pathname;
-        const from = sessionStorage.getItem("msime-nav-from");
-        sessionStorage.setItem("msime-nav-from", here);
-        if (!from || from === here || !/^\/[a-z]*\/?$/.test(from)) return;
-        const list = document.querySelector(".nav-list");
-        const to = list && list.querySelector('.nav-link[aria-current="page"]');
-        const prev = list && list.querySelector('.nav-link[href="' + from + '"]');
-        if (!to || !prev) return;
-        list.style.setProperty("--pill-from", prev.offsetLeft - to.offsetLeft + "px");
-        list.classList.add("is-sliding");
-      } catch {}
-    })();
-  </script>
-
-  <div class="page-hero">
-    <div class="container page-hero-inner">
-      <p class="page-hero-kicker" id="page-kicker">下载</p>
-      <h1 class="page-hero-title" id="page-title"></h1>
-      <p class="page-hero-lead" id="page-lead"></p>
-    </div>
-  </div>
-  <main class="content-page">
-    <div class="container">
-      <article class="docs-content download-content" id="download-content" aria-live="polite"></article>
-    </div>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container">
-      <div class="site-footer-grid">
-        <div>
-          <div class="site-footer-brand">
-            <img src="/msime-logo.png" width="30" height="30" decoding="async" alt="" />
-            <span>水杉输入法</span>
-          </div>
-          <p class="site-footer-desc">开源中文输入法。各平台共用同一套 C++ 引擎，界面与文本注入各自原生实现。GPL-3.0。</p>
-          <div class="site-footer-chips">
-            <a href="https://t.me/msimegroup" target="_blank" rel="noreferrer">Telegram</a>
-            <span>QQ 群 829919142</span>
-            <a href="mailto:metasequoiaime@gmail.com">邮箱</a>
-          </div>
-        </div>
-
-        <div>
-          <div class="site-footer-col-title">产品</div>
-          <div class="site-footer-links">
-            <a href="/download/">下载</a>
-            <a href="/price/">价格</a>
-            <a href="/docs/">文档</a>
-          </div>
-        </div>
-
-        <div>
-          <div class="site-footer-col-title">项目</div>
-          <div class="site-footer-links">
-            <a href="/code/">开源代码</a>
-            <a href="/about/">关于</a>
-            <a href="/privacy/">隐私说明</a>
-            <a href="https://github.com/metasequoiaime" target="_blank" rel="noreferrer">GitHub 组织</a>
-          </div>
-        </div>
-
-        <div>
-          <div class="site-footer-col-title">参与</div>
-          <div class="site-footer-links">
-            <a href="https://github.com/metasequoiaime/.github/blob/main/RECRUITING.md" target="_blank" rel="noreferrer">招募开源开发者</a>
-            <a href="https://github.com/metasequoiaime/.github/blob/main/CONTRIBUTING.md" target="_blank" rel="noreferrer">贡献指南</a>
-            <a href="https://github.com/metasequoiaime/.github/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noreferrer">行为准则</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="site-footer-bottom">
-        <span>Copyright © 2026-present</span>
-        <a href="https://github.com/fanlusky" target="_blank" rel="noreferrer">fanlusky</a>
-        <span>@<span class="lxl">乱序楼</span></span>
-        <span class="site-footer-license">GPL-3.0</span>
-        <a class="site-footer-site" href="https://msime.app" target="_blank" rel="noreferrer">msime.app</a>
-      </div>
-    </div>
-  </footer>
+  <noscript>
+    <p class="noscript-note">本站需要 JavaScript 才能显示内容。请在浏览器中启用后重试，或直接前往 <a href="https://github.com/metasequoiaime">GitHub 组织</a> 查看项目、文档与下载。</p>
+  </noscript>
 
   <script type="module" src="/src/app.tsx"></script>
 </body>

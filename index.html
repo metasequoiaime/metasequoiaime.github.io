@@ -1,1 +1,59 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="description" content="开源中文输入法，各平台共用同一套 C++ 引擎。"/><link rel="icon" href="/msime.ico"/><title>MSIME | 水杉输入法</title></head><body><div id="root"></div><script type="module" src="/src/app.tsx"></script></body></html>
+<!doctype html>
+<html lang="zh-CN" class="preload">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/x-icon" href="/msime.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="开源中文输入法，各平台共用同一套 C++ 引擎。" />
+  <title>MSIME | 水杉输入法</title>
+
+  <script>
+    (() => {
+      try {
+        const theme = localStorage.getItem("msime-theme");
+        document.documentElement.dataset.theme = ["light", "dark", "system"].includes(theme) ? theme : "system";
+      } catch {
+        document.documentElement.dataset.theme = "system";
+      }
+    })();
+  </script>
+
+  <style>
+    html { background-color: #202020; color-scheme: dark; }
+    html[data-theme="light"] { background-color: #f3f5f7; color-scheme: light; }
+    @media (prefers-color-scheme: light) {
+      html[data-theme="system"] { background-color: #f3f5f7; color-scheme: light; }
+    }
+
+    body {
+      background-color: inherit;
+    }
+
+    /* 页面由 React 渲染，样式到位之前先把挂载点遮住。只遮 #root，脚本被禁用时下面的提示还要看得见。 */
+    html.preload #root {
+      visibility: hidden;
+    }
+
+    .noscript-note {
+      max-width: 40rem;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+      color: #9aa4b2;
+      font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <noscript>
+    <p class="noscript-note">本站需要 JavaScript 才能显示内容。请在浏览器中启用后重试，或直接前往 <a href="https://github.com/metasequoiaime">GitHub 组织</a> 查看项目、文档与下载。</p>
+  </noscript>
+
+  <script type="module" src="/src/app.tsx"></script>
+</body>
+
+</html>

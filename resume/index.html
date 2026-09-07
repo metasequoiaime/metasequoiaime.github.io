@@ -17,27 +17,42 @@
       } catch {
         document.documentElement.dataset.theme = "system";
       }
-      // preload 只是给 dev 兜底：那时样式由脚本注入，得先把整页遮住。构建产物的样式表是 head 里的阻塞资源，首帧就有样式，再遮一层只会让每次换页先画一帧空白。dev server 会把 /@vite/client 插在 head 最前面，用它区分两种环境。
-      if (!document.querySelector('script[src*="/@vite/client"]')) {
-        document.documentElement.classList.remove("preload");
-      }
     })();
   </script>
+
   <style>
     html { background-color: #202020; color-scheme: dark; }
     html[data-theme="light"] { background-color: #f3f5f7; color-scheme: light; }
     @media (prefers-color-scheme: light) {
       html[data-theme="system"] { background-color: #f3f5f7; color-scheme: light; }
     }
-    body { background-color: inherit; }
-    html.preload body { visibility: hidden; }
+
+    body {
+      background-color: inherit;
+    }
+
+    /* 页面由 React 渲染，样式到位之前先把挂载点遮住。只遮 #root，脚本被禁用时下面的提示还要看得见。 */
+    html.preload #root {
+      visibility: hidden;
+    }
+
+    .noscript-note {
+      max-width: 40rem;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+      color: #9aa4b2;
+      font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.8;
+    }
   </style>
 </head>
 
-<body class="resume-body"><div id="root"></div>
-  <main class="resume-page">
-    <article class="resume-content" id="resume-content" aria-live="polite"></article>
-  </main>
+<body class="resume-body">
+  <div id="root"></div>
+
+  <noscript>
+    <p class="noscript-note">本站需要 JavaScript 才能显示内容。请在浏览器中启用后重试，或直接前往 <a href="https://github.com/metasequoiaime">GitHub 组织</a> 查看项目、文档与下载。</p>
+  </noscript>
 
   <script type="module" src="/src/app.tsx"></script>
 </body>

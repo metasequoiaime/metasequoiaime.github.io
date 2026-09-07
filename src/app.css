@@ -1,8 +1,0 @@
-@import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
-html, body, #root { min-height: 100%; }
-body { margin: 0; font-family: Inter, "PingFang SC", "Noto Sans SC", sans-serif; }
-body > *:not(#root) { display: none; }
-/* The legacy multi-page shells keep a preload class. React owns the render now,
-   so that old first-paint guard must never hide the new application. */
-html.preload body { visibility: visible !important; }
