@@ -52,6 +52,8 @@
   --accent-ring: rgba(110, 160, 255, 0.22);
   --glow: rgba(110, 160, 255, 0.16);
   --focus-ring: #6ea0ff;
+  /* 图表系列色单独立一个令牌：UI 主色 #6ea0ff 的 OKLCH 亮度是 0.713，超出暗色图表该用的 0.48–0.67 带 */
+  --chart-series: #5b8fe8;
   --aurora-1: rgba(110, 160, 255, 0.24);
   --aurora-2: rgba(150, 120, 255, 0.15);
   --aurora-3: rgba(96, 200, 255, 0.09);
@@ -112,6 +114,7 @@
   --accent-ring: rgba(15, 108, 189, 0.28);
   --glow: rgba(15, 108, 189, 0.13);
   --focus-ring: #0f6cbd;
+  --chart-series: #0f6cbd;
   --aurora-1: rgba(15, 108, 189, 0.17);
   --aurora-2: rgba(96, 84, 220, 0.1);
   --aurora-3: rgba(0, 160, 220, 0.07);
@@ -1268,6 +1271,257 @@ html {
 
 .page-hero-lead:empty {
   display: none;
+}
+
+/* ==== HOME · 社区（Star 趋势与贡献者） ==== */
+.community-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.community-chart-card,
+.community-people-card {
+  padding: 22px 24px 18px;
+}
+
+.community-chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+
+.community-kicker {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--icon-color);
+}
+
+.community-figure {
+  display: block;
+  margin-top: 4px;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--lg-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.community-link {
+  flex: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+.community-people-note {
+  margin: 8px 0 14px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.community-people {
+  display: grid;
+  gap: 2px;
+  max-height: 292px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.community-people a {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 11px;
+  align-items: center;
+  padding: 7px 9px;
+  border-radius: 12px;
+  color: var(--text-body);
+  transition: background-color 0.18s ease;
+}
+
+.community-people a:hover,
+.community-people a:focus-visible {
+  background: var(--card-3);
+  color: var(--text-body);
+}
+
+.community-people img {
+  grid-row: 1 / 3;
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--chip-bg);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+
+.community-person-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--lg-heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.community-person-meta {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==== STAR 趋势图 ==== */
+/* 单条序列，所以不放图例 —— 标题已经说明画的是什么，一个色块的图例只是复述。数值只在末点直接标注，其余交给坐标轴、悬停提示和数据表。 */
+.star-chart {
+  margin-top: 6px;
+}
+
+.star-chart-frame {
+  position: relative;
+}
+
+.star-chart-frame svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.star-chart-grid {
+  stroke: var(--hair-2);
+  stroke-width: 1;
+}
+
+.star-chart-crosshair {
+  stroke: var(--hair-3);
+  stroke-width: 1;
+}
+
+/* 刻度和标签穿文字色，不穿序列色：浅色的图表色当文字用读不清 */
+.star-chart-tick {
+  fill: var(--text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.star-chart-endlabel {
+  fill: var(--lg-heading);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.star-chart-line {
+  fill: none;
+  stroke: var(--chart-series);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 描边用的是卡片底色而不是"给点画个边框"：点压在线上时靠这圈同色留白分开 */
+.star-chart-dot {
+  fill: var(--chart-series);
+  stroke: var(--card-bg);
+  stroke-width: 2;
+}
+
+.star-chart-tip {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: grid;
+  gap: 1px;
+  padding: 7px 11px;
+  border-radius: 10px;
+  background: var(--menu-bg);
+  box-shadow: var(--menu-shadow), inset 0 0 0 1px var(--hair);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.star-chart-tip strong {
+  font-size: 14px;
+  color: var(--lg-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.star-chart-tip span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.star-chart-table {
+  margin-top: 10px;
+}
+
+.star-chart-table summary {
+  display: inline-block;
+  padding: 3px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.star-chart-table summary:hover {
+  color: var(--primary-color);
+}
+
+.star-chart-table-scroll {
+  max-height: 220px;
+  margin-top: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+
+.star-chart-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.star-chart-table caption {
+  padding: 8px 12px;
+  text-align: left;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.star-chart-table th,
+.star-chart-table td {
+  padding: 6px 12px;
+  text-align: left;
+  font-weight: 400;
+  color: var(--text-content);
+  border-top: 1px solid var(--hair);
+}
+
+.star-chart-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--docs-table-head-bg);
+  color: var(--docs-table-head-text);
+  font-weight: 600;
+}
+
+@media screen and (max-width: 1080px) {
+  .community-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .community-people {
+    max-height: none;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
 }
 
 /* ==== FOOTER ==== */

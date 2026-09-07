@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
+import { CommunitySection } from "./community-section";
 import { useReveal } from "./use-reveal";
 import { useTheme } from "./theme";
 
@@ -224,9 +225,11 @@ export function HomePage() {
         </div>
       </section>
 
+      <CommunitySection />
+
       <section className="container section">
         <div className="section-eyebrow" data-reveal>
-          <span>03 · 平台与下载</span>
+          <span>04 · 平台与下载</span>
           <span className="section-rule" />
         </div>
 

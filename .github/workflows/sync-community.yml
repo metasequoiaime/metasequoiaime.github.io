@@ -1,0 +1,76 @@
+name: Sync community snapshot
+
+# public/community.json backs the home page's star history and contributor list. It is generated here
+# rather than fetched by the browser: the star history needs one request per 100 stargazers, and
+# GitHub's anonymous limit is 60 per hour per IP, so visitors sharing an address would see it fail.
+# Generating it also keeps the promise the privacy page makes -- reading the site contacts no one else.
+#
+# Unlike the release manifest this PR is not auto-merged. scripts/enable-manifest-automerge.py accepts
+# a diff of exactly public/update.json, and widening that allowlist is a change to the automation's
+# security boundary, not a side effect of adding a second data file.
+
+on:
+  schedule:
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-community
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Propose a refreshed community snapshot
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SNAPSHOT: public/community.json
+    steps:
+      - name: Check out the site
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+
+      - name: Regenerate the snapshot
+        id: write
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          node --test scripts/generate-community.test.mjs
+          node scripts/generate-community.mjs
+          if git diff --quiet -- "$SNAPSHOT"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Require the PR automation credential
+        if: steps.write.outputs.changed == 'true'
+        env:
+          AUTOMATION_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+        run: test -n "$AUTOMATION_TOKEN"
+
+      - name: Create or update the snapshot PR
+        if: steps.write.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          # A trusted token triggers PR CI and deployment after merging.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          add-paths: public/community.json
+          branch: automation/community-snapshot
+          base: main
+          delete-branch: true
+          commit-message: 'chore(site): refresh community snapshot'
+          title: 'chore(site): refresh community snapshot'
+          body: 'Star history and contributor totals regenerated from the GitHub API. Review and merge by hand; this file is outside the release manifest auto-merge allowlist.'
