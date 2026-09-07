@@ -6,20 +6,34 @@
   "packageManager": "pnpm@10.15.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsgo && vite build",
     "preview": "vite preview",
     "lint": "biome lint .",
     "test": "node --test scripts/generate-update.test.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.12",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/markdown-it": "^14.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
+    "@vitejs/plugin-react": "^6.1.1",
     "sass": "^1.103.1",
     "swiper": "^14.2.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "~7.0.2",
     "vite": "^8.2.2"
   },
   "dependencies": {
-    "markdown-it": "^15.0.1"
+    "@tanstack/react-query": "^5.102.8",
+    "@tanstack/react-router": "^1.170.33",
+    "clsx": "^2.1.1",
+    "markdown-it": "^15.0.1",
+    "motion": "^13.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.5.4"
   }
 }
