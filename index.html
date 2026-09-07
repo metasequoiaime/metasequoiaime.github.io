@@ -16,10 +16,6 @@
       } catch {
         document.documentElement.dataset.theme = "system";
       }
-      // preload 只是给 dev 兜底：那时样式由脚本注入，得先把整页遮住。构建产物的样式表是 head 里的阻塞资源，首帧就有样式，再遮一层只会让每次换页先画一帧空白。dev server 会把 /@vite/client 插在 head 最前面，用它区分两种环境。
-      if (!document.querySelector('script[src*="/@vite/client"]')) {
-        document.documentElement.classList.remove("preload");
-      }
     })();
   </script>
 
@@ -34,294 +30,30 @@
       background-color: inherit;
     }
 
-    html.preload body {
+    /* 页面由 React 渲染，样式到位之前先把挂载点遮住。只遮 #root，脚本被禁用时下面的提示还要看得见。 */
+    html.preload #root {
       visibility: hidden;
+    }
+
+    .noscript-note {
+      max-width: 40rem;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+      color: #9aa4b2;
+      font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.8;
     }
   </style>
 </head>
 
 <body>
-  <div class="header-wrap">
-    <header class="container header">
-      <a class="logo" href="/">
-        <img src="/msime-logo.png" width="34" height="34" decoding="async" alt="logo" />
-        <span class="logo-text">水杉输入法</span>
-      </a>
+  <div id="root"></div>
 
-      <div class="header-actions">
-        <a class="header-github" href="https://github.com/metasequoiaime" target="_blank" rel="noreferrer">
-          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
-          <span>GitHub</span>
-        </a>
+  <noscript>
+    <p class="noscript-note">本站需要 JavaScript 才能显示内容。请在浏览器中启用后重试，或直接前往 <a href="https://github.com/metasequoiaime">GitHub 组织</a> 查看项目、文档与下载。</p>
+  </noscript>
 
-        <div class="theme-switcher" id="theme-switcher">
-          <button class="theme-button" id="theme-button" type="button" aria-haspopup="true" aria-expanded="false">
-            <svg class="theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="4.2"></circle>
-              <path d="M12 2.6v2.2M12 19.2v2.2M4.2 12H2M22 12h-2.2M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6"></path>
-            </svg>
-            <svg class="theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20.5 14.3A8.5 8.5 0 1 1 9.7 3.5a6.8 6.8 0 0 0 10.8 10.8z"></path>
-            </svg>
-          </button>
-          <div class="theme-options" id="theme-options" role="menu" aria-label="主题模式">
-            <button class="theme-option" type="button" role="menuitemradio" data-theme-choice="light">亮色</button>
-            <button class="theme-option" type="button" role="menuitemradio" data-theme-choice="dark">暗色</button>
-            <button class="theme-option" type="button" role="menuitemradio" data-theme-choice="system">跟随系统</button>
-          </div>
-        </div>
-
-        <button class="btn-toggle" id="btn-toggle" type="button" aria-label="打开导航菜单">
-          <img src="/img/icons/Menu.svg" alt="" class="nav-icon" />
-        </button>
-      </div>
-    </header>
-  </div>
-
-  <nav class="nav-menu" id="nav-menu" aria-label="站点导航">
-    <button class="btn-close" id="btn-close" type="button" aria-label="关闭导航菜单">
-      <img src="/img/icons/Close_round.svg" alt="" class="nav-icon" />
-    </button>
-
-    <ul class="nav-list">
-          <li class="nav-item">
-            <a href="/" class="nav-link" aria-current="page"><img src="/img/icons/nav/home.svg" alt="" class="nav-link-icon" />首页</a>
-          </li>
-          <li class="nav-item">
-            <a href="/docs/" class="nav-link"><img src="/img/icons/nav/docs.svg" alt="" class="nav-link-icon" />文档</a>
-          </li>
-          <li class="nav-item">
-            <a href="/price/" class="nav-link"><img src="/img/icons/nav/price.svg" alt="" class="nav-link-icon" />价格</a>
-          </li>
-          <li class="nav-item">
-            <a href="/code/" class="nav-link"><img src="/img/icons/nav/code.svg" alt="" class="nav-link-icon" />开源代码</a>
-          </li>
-          <li class="nav-item">
-            <a href="/download/" class="nav-link"><img src="/img/icons/nav/download.svg" alt="" class="nav-link-icon" />下载</a>
-          </li>
-          <li class="nav-item">
-            <a href="/about/" class="nav-link"><img src="/img/icons/nav/about.svg" alt="" class="nav-link-icon" />关于</a>
-          </li>
-    </ul>
-  </nav>
-
-  <script>
-    // 当前 tab 的胶囊从上一页的位置滑过来。在解析阶段就把偏移算好，首帧不会先画到终点再跳回去。
-    (() => {
-      try {
-        const here = location.pathname;
-        const from = sessionStorage.getItem("msime-nav-from");
-        sessionStorage.setItem("msime-nav-from", here);
-        if (!from || from === here || !/^\/[a-z]*\/?$/.test(from)) return;
-        const list = document.querySelector(".nav-list");
-        const to = list && list.querySelector('.nav-link[aria-current="page"]');
-        const prev = list && list.querySelector('.nav-link[href="' + from + '"]');
-        if (!to || !prev) return;
-        list.style.setProperty("--pill-from", prev.offsetLeft - to.offsetLeft + "px");
-        list.classList.add("is-sliding");
-      } catch {}
-    })();
-  </script>
-
-  <main>
-    <div class="hero-band">
-      <div class="hero-glow" aria-hidden="true"></div>
-      <svg class="hero-mark" viewBox="0 0 100 110" aria-hidden="true">
-        <path d="M74.7 14L35.2 29.2L74.7 40.6L35.2 59.5C72.6 65.8 107.7 71 33 95"></path>
-      </svg>
-
-      <div class="container hero">
-        <div class="hero-content">
-          <div class="hero-eyebrow">
-            <span class="hero-eyebrow-line"></span>
-            <span class="hero-eyebrow-text">MSIME · OPEN SOURCE IME</span>
-          </div>
-
-          <h1 class="hero-title">改善中英文输入体验，<span>一套引擎，四个平台</span></h1>
-
-          <p class="hero-desc">全拼、双拼、五笔共用同一套跨平台 C++ 引擎，Windows、macOS、Linux 与 iOS 前端各自原生实现界面与文本注入。</p>
-
-          <p class="hero-quote">墨池飞出北溟鱼，笔锋杀尽中山兔。</p>
-
-          <div class="hero-buttons btn-row">
-            <a class="btn btn-lg btn-primary" href="/download/">下载<img src="/img/icons/Download.svg" alt="" class="btn-icon" /></a>
-            <a class="btn btn-lg btn-ghost" href="/docs/">阅读文档</a>
-          </div>
-        </div>
-
-        <div class="hero-stats card-lift">
-          <div>
-            <div class="hero-stat-value">3 套</div>
-            <div class="hero-stat-label">输入方案</div>
-          </div>
-          <div>
-            <div class="hero-stat-value">5 套</div>
-            <div class="hero-stat-label">辅助码方案</div>
-          </div>
-          <div>
-            <div class="hero-stat-value">4 个</div>
-            <div class="hero-stat-label">平台前端</div>
-          </div>
-          <div>
-            <div class="hero-stat-value is-text">GPL-3.0</div>
-            <div class="hero-stat-label">100% 开源</div>
-          </div>
-        </div>
-
-        <div class="hero-demo">
-          <div class="hero-screenshot">
-            <div class="hero-screenshot-bar">
-              <span class="hero-screenshot-dot"></span>
-              <span class="hero-screenshot-dot"></span>
-              <span class="hero-screenshot-dot"></span>
-              <span class="hero-screenshot-title">水杉输入法 · 输入演示</span>
-            </div>
-            <img class="hero-media hero-media-dark" src="/img/typing_words_dark.gif" alt="输入演示" />
-            <video class="hero-media hero-media-light" muted loop playsinline preload="metadata" poster="/img/typing_words_light_poster.jpg" aria-label="输入演示">
-              <source src="/img/typing_words_light.mp4" type="video/mp4" />
-            </video>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <section class="container section">
-      <div class="section-eyebrow" data-reveal>
-        <span>01 · 能力</span>
-        <span class="section-rule"></span>
-      </div>
-
-      <div class="feature-grid" data-reveal-stagger>
-        <div class="card card-lift feature-card" data-reveal>
-          <div class="feature-kicker">输入方案</div>
-          <div class="feature-title">全拼 · 双拼 · 五笔</div>
-          <div class="feature-desc">双拼支持小鹤、自然码、首道与微软方案，五笔提供 86 版。辅助码可选蓝天小雨点、自然码、首右 2.0、首右 Plus 和小鹤，把同音候选缩小到更容易挑选的范围。</div>
-        </div>
-        <div class="card card-lift feature-card" data-reveal>
-          <div class="feature-kicker">云候选与 AI</div>
-          <div class="feature-title">本地优先，云端可选</div>
-          <div class="feature-desc">谷歌云候选插入第一页第 2 项，DeepSeek AI 联想插入第 3 项。两者都需要网络，接口异常时不影响本地候选；API Token 只保存在本机配置里。</div>
-        </div>
-        <div class="card card-lift feature-card" data-reveal>
-          <div class="feature-kicker">界面与工具</div>
-          <div class="feature-title">候选窗之外的部分</div>
-          <div class="feature-desc">候选窗支持横排与纵排、自定义字体与皮肤，另有悬浮工具栏、语音输入、手写识别板和屏幕键盘，各界面主题都可以单独设置。</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="container section">
-      <div class="section-eyebrow" data-reveal>
-        <span>02 · 开源</span>
-        <span class="section-rule"></span>
-      </div>
-
-      <div class="card open-card" data-reveal>
-        <h2>100% 开源，GPL-3.0</h2>
-        <p>输入法能看到用户输入的一切，隐私边界不该只靠承诺保证，而该能被任何人读代码检查。桌面工具软件长期由少数大厂主导，我们想留一个用户可以自己改、自己分发的选择。</p>
-        <p>项目长期招募贡献者，方向不限于写代码 —— 词库、文档、本地化、兼容性测试同样算贡献。主仓的 Issue 已经按可接手程度分类，<code>no-code</code> 完全不需要写代码。</p>
-        <div class="btn-row">
-          <a class="btn btn-primary" href="https://github.com/metasequoiaime" target="_blank" rel="noreferrer">在 GitHub 上参与</a>
-          <a class="btn btn-soft" href="/code/">看全部仓库</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="container section">
-      <div class="section-eyebrow" data-reveal>
-        <span>03 · 平台与下载</span>
-        <span class="section-rule"></span>
-      </div>
-
-      <h2 class="section-title" data-reveal>四个平台，一套引擎</h2>
-      <p class="section-lead" data-reveal>前端各自原生实现，下载与安装说明统一在下载页。</p>
-
-      <div class="platform-list" data-reveal>
-        <div class="platform-row">
-          <span class="platform-name">Windows 10 / 11</span>
-          <span class="platform-desc">纯 TSF 前端 + 常驻 Server</span>
-          <span class="platform-status is-live">公开内测</span>
-        </div>
-        <div class="platform-row">
-          <span class="platform-name">macOS 12+</span>
-          <span class="platform-desc">InputMethodKit + AppKit</span>
-          <span class="platform-status">开发中</span>
-        </div>
-        <div class="platform-row">
-          <span class="platform-name">Linux</span>
-          <span class="platform-desc">IBus 前端，另含 GTK 设置程序</span>
-          <span class="platform-status">开发中</span>
-        </div>
-        <div class="platform-row">
-          <span class="platform-name">iOS</span>
-          <span class="platform-desc">宿主 App + 键盘扩展</span>
-          <span class="platform-status">开发中</span>
-        </div>
-      </div>
-
-      <div class="btn-row platform-cta" data-reveal>
-        <a class="btn btn-primary" href="/download/">前往下载页<img src="/img/icons/Download.svg" alt="" class="btn-icon" /></a>
-        <a class="btn btn-ghost" href="/code/">查看仓库</a>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container">
-      <div class="site-footer-grid">
-        <div>
-          <div class="site-footer-brand">
-            <img src="/msime-logo.png" width="30" height="30" decoding="async" alt="" />
-            <span>水杉输入法</span>
-          </div>
-          <p class="site-footer-desc">开源中文输入法。各平台共用同一套 C++ 引擎，界面与文本注入各自原生实现。GPL-3.0。</p>
-          <div class="site-footer-chips">
-            <a href="https://t.me/msimegroup" target="_blank" rel="noreferrer">Telegram</a>
-            <span>QQ 群 829919142</span>
-            <a href="mailto:metasequoiaime@gmail.com">邮箱</a>
-          </div>
-        </div>
-
-        <div>
-          <div class="site-footer-col-title">产品</div>
-          <div class="site-footer-links">
-            <a href="/download/">下载</a>
-            <a href="/price/">价格</a>
-            <a href="/docs/">文档</a>
-          </div>
-        </div>
-
-        <div>
-          <div class="site-footer-col-title">项目</div>
-          <div class="site-footer-links">
-            <a href="/code/">开源代码</a>
-            <a href="/about/">关于</a>
-            <a href="/privacy/">隐私说明</a>
-            <a href="https://github.com/metasequoiaime" target="_blank" rel="noreferrer">GitHub 组织</a>
-          </div>
-        </div>
-
-        <div>
-          <div class="site-footer-col-title">参与</div>
-          <div class="site-footer-links">
-            <a href="https://github.com/metasequoiaime/.github/blob/main/RECRUITING.md" target="_blank" rel="noreferrer">招募开源开发者</a>
-            <a href="https://github.com/metasequoiaime/.github/blob/main/CONTRIBUTING.md" target="_blank" rel="noreferrer">贡献指南</a>
-            <a href="https://github.com/metasequoiaime/.github/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noreferrer">行为准则</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="site-footer-bottom">
-        <span>Copyright © 2026-present</span>
-        <a href="https://github.com/fanlusky" target="_blank" rel="noreferrer">fanlusky</a>
-        <span>@<span class="lxl">乱序楼</span></span>
-        <span class="site-footer-license">GPL-3.0</span>
-        <a class="site-footer-site" href="https://msime.app" target="_blank" rel="noreferrer">msime.app</a>
-      </div>
-    </div>
-  </footer>
-
-  <script type="module" src="/src/main.ts"></script>
+  <script type="module" src="/src/app.tsx"></script>
 </body>
 
 </html>

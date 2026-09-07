@@ -4,12 +4,49 @@
   padding: 2.25rem 0 0;
 }
 
+/*
+ * 容器宽度由里面装什么决定。
+ *
+ * 首页那些卡片网格、平台列表、趋势图能随屏放大，用整站那个宽容器；成段正文不行 —— 中文一行超过 45 字左右视线扫回行首就容易串行，屏幕再宽也不该把行拉长。所以阅读页单独收窄并居中，卡片贴合这一栏，里面不会空出半边。
+ *
+ * 想把这段留白也用掉的话，就得往里放东西 —— 已经放了左侧小节索引；再往宽了走只能加第三栏，那是另一个量级的改动。
+ */
+.docs-page > .container,
+.content-page > .container {
+  max-width: min(1160px, 94vw);
+}
+
+/*
+ * 无侧栏的内容页原本整行铺满，1440px 下一行 65 个汉字，视线扫回行首容易串行；文档页因为有侧栏挤着是一行 46 字，读起来明显舒服。
+ *
+ * 收窄的是整列，不是列里的文字：只把文字收窄会让卡片右半边空出一大块死区，白底上的空洞比长行更难看。卡片跟着文字一起收，右边留出来的就是页面留白，和页头、顶栏 logo 左边缘对齐。
+ */
+/* 下载入口跨满两列，排在索引和正文之上 —— 它是这一页要做的那件事，不该缩在正文栏里 */
+.content-page .docs-shell > .download-panel {
+  grid-column: 1 / -1;
+}
+
+/* 小节太少（价格页只有两节）就不列索引，这时正文自己占一列。宽度仍按文档页那一栏来，左边缘和页头对齐，免得又回到一行 65 个汉字。 */
+.content-page .container:not(.docs-shell) .docs-content,
+.content-page .container:not(.docs-shell) .download-panel {
+  max-width: var(--content-measure);
+}
+
 .docs-shell {
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
   gap: 32px;
   align-items: start;
   overflow-anchor: none;
+}
+
+/* 页头有自己的入场动画，正文这两块原本是硬生生出现的。接在页头后面依次抬起来，整页才像一起进场。切换平台时这两个元素一直挂着，动画不会重跑 —— 换标签不该整页再动一遍。 */
+.docs-shell > .docs-sidebar {
+  animation: riseIn 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both;
+}
+
+.docs-shell > .docs-article {
+  animation: riseIn 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 0.16s both;
 }
 
 .docs-sidebar {
@@ -69,11 +106,34 @@
 }
 
 .docs-toc {
+  position: relative;
   display: grid;
   gap: 2px;
 }
 
+/* 当前小节的底色做成一块会滑的胶囊，跟着正文滚动在目录里移动。位置和高度由脚本量好写进自定义属性 —— 目录项高度不一（二级和三级字号不同），照搬导航那种纯 CSS 的做法量不出来。 */
+.docs-toc::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--toc-h, 34px);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  opacity: var(--toc-on, 0);
+  transform: translateY(var(--toc-y, 0));
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1),
+    height 0.28s cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 0.2s ease;
+  pointer-events: none;
+}
+
 .docs-toc a {
+  /* 滑动胶囊是定位元素，会盖在普通流内容之上；目录项自己也定位一下才压得住它 */
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   min-height: 34px;
@@ -94,15 +154,101 @@
   background: var(--card-3);
 }
 
+/* 底色交给上面那块会滑的胶囊，这里只留文字颜色；两边都画背景的话，滑动过程中会同时亮起两处 */
 .docs-toc a.is-active {
   color: var(--lg-heading);
-  background: var(--accent-soft);
 }
 
 .docs-toc-subitem {
   padding-left: 26px !important;
   font-weight: 400 !important;
   font-size: 13.5px !important;
+}
+
+/* ==== DOWNLOAD · 顶部下载入口 ==== */
+/* 在这之前，这一页最主要的操作是正文项目符号里的一个文字链接，和旁边的镜像链接、说明文字同等分量。这块面板把它提到正文之前，用主色描边说明「这是本页要做的那件事」。平台标签沿用文档页那套，站内同一个概念只用一种控件。 */
+.download-panel {
+  margin-bottom: 16px;
+  padding: 20px 24px 18px;
+  border-radius: var(--radius-card);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--accent-ring);
+}
+
+.download-panel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.download-panel-action {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+}
+
+.download-panel-meta p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-content);
+}
+
+.download-panel-file {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 5px !important;
+}
+
+.download-panel-file code {
+  padding: 0.15em 0.4em;
+  border-radius: 6px;
+  background: var(--docs-code-bg);
+  color: var(--docs-code-text);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+.download-panel-signed,
+.download-panel-unsigned {
+  padding: 2px 9px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.download-panel-signed {
+  background: var(--accent-soft);
+  color: var(--icon-color);
+}
+
+/* 未签名不是装饰性的状态，配色要和「已签名」明确不同，别让人扫一眼就当成一样 */
+.download-panel-unsigned {
+  background: color-mix(in oklab, #d9822b 22%, transparent);
+  color: color-mix(in oklab, #d9822b 78%, var(--lg-heading));
+}
+
+.download-panel-note {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair);
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+@media screen and (max-width: 640px) {
+  .download-panel {
+    padding: 18px 18px 16px;
+  }
+
+  /* 窄屏上按钮铺满，是本页最该点的东西 */
+  .download-panel-action .btn {
+    width: 100%;
+  }
 }
 
 /* ==== CONTENT CARDS ==== */
@@ -142,9 +288,10 @@
 .docs-content {
   min-width: 0;
   color: var(--text-body);
-  font-size: 15.5px;
+  font-size: var(--reading-font);
   line-height: 1.85;
 }
+
 
 .docs-content h1,
 .docs-content h2,

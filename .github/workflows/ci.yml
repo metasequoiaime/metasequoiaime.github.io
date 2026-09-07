@@ -34,8 +34,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Lint
         run: pnpm run lint
-      - name: Validate release metadata
-        run: node --test scripts/generate-update.test.mjs
+      - name: Validate generated data
+        run: pnpm run test
       - name: Test manifest auto-merge restrictions
         run: python3 -m unittest discover -s scripts -p 'test_*.py'
       - name: Build

@@ -10,7 +10,7 @@
   box-sizing: border-box;
 }
 
-/* 跨文档 view transition 在这套站点上不可用：内容页正文由脚本渲染，新页快照可能拍到空正文；给正文脚本加 blocking="render" 又会让点击跳转后渲染永久阻塞。换页动画改用页头自己的入场动画 + 导航胶囊滑动，行为确定，也不依赖浏览器支持。 */
+/* 换页动画不走 view transition：页头自己的入场动画 + 导航胶囊滑动已经把「换页了」说清楚，而 view transition 会把整份文档拍成静态快照，胶囊那段滑动反而会被冻住。view transition 只用在切换主题上 —— 那一下整页配色本来就要重画，也没有正在跑的动画会被打断。（迁移到客户端路由之前，跨文档 view transition 是另一个问题：正文由脚本渲染，新页快照会拍到空正文。现在正文在换页时已经在 DOM 里，这个限制不再存在。） */
 
 /* ==== THEME TOKENS ==== */
 @mixin theme-dark {
@@ -51,6 +51,13 @@
   --accent-soft: rgba(110, 160, 255, 0.16);
   --accent-ring: rgba(110, 160, 255, 0.22);
   --glow: rgba(110, 160, 255, 0.16);
+  --focus-ring: #6ea0ff;
+  /* 图表系列色单独立一个令牌：UI 主色 #6ea0ff 的 OKLCH 亮度是 0.713，超出暗色图表该用的 0.48–0.67 带 */
+  --chart-series: #5b8fe8;
+  --aurora-1: rgba(110, 160, 255, 0.24);
+  --aurora-2: rgba(150, 120, 255, 0.15);
+  --aurora-3: rgba(96, 200, 255, 0.09);
+  --dot: rgba(255, 255, 255, 0.075);
   --feature-grad: linear-gradient(160deg, #373e4d 0%, #2e2e2e 62%);
   --theme-hover-bg: rgba(110, 160, 255, 0.12);
 
@@ -106,6 +113,12 @@
   --accent-soft: rgba(15, 108, 189, 0.12);
   --accent-ring: rgba(15, 108, 189, 0.28);
   --glow: rgba(15, 108, 189, 0.13);
+  --focus-ring: #0f6cbd;
+  --chart-series: #0f6cbd;
+  --aurora-1: rgba(15, 108, 189, 0.17);
+  --aurora-2: rgba(96, 84, 220, 0.1);
+  --aurora-3: rgba(0, 160, 220, 0.07);
+  --dot: rgba(15, 23, 32, 0.07);
   --feature-grad: linear-gradient(160deg, #eef3fa 0%, #ffffff 62%);
   --theme-hover-bg: rgba(15, 108, 189, 0.1);
 
@@ -127,11 +140,16 @@
   @include theme-dark;
 
   --fixed-header-height: 4.25rem;
-  --page-max: 1160px;
+  /* 1160 的死宽在 1920 上只占 60% 的屏、2560 上只占 45%，整站看着像一条窄带。改成跟着视口长、到 1600 封顶：卡片网格、平台列表、趋势图这些本来就该铺开。正文另有阅读上限，见下面 --reading-measure。 */
+  --page-max: min(1600px, 94vw);
   --page-gutter: clamp(1.25rem, 4vw, 3rem);
   --radius-card: 20px;
+  /* 不列索引时正文那一列的宽度，取自文档页正文栏（容器 1064 减去 250 的侧栏和 32 的间距） */
+  --content-measure: 49rem;
   --mono: "SF Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-size-body-text: clamp(14px, 1.6vw, 16px);
+  /* 大屏通常也坐得更远，正文跟着放大一档。阅读栏是定宽的，字号一大每行字数反而更少、更好读。 */
+  --reading-font: clamp(15.5px, 0.8vw, 17px);
   --h1-font-size: calc(var(--font-size-body-text) * 2.4);
   --h2-font-size: calc(var(--h1-font-size) - 15px);
   --h3-font-size: calc(var(--h2-font-size) - 8px);
@@ -156,10 +174,50 @@ body {
   background-color: var(--bg);
   background-image: linear-gradient(180deg, var(--page-tint) 0%, transparent 620px);
   background-attachment: fixed;
+  /* 让 body 自己成为层叠上下文，下面两层负 z-index 的背景才会画在 body 背景色之上。不加这行，它们会落进 html 的层叠上下文里，被 body 的不透明底色整个盖掉 —— 看起来像没写。isolation 不会给 fixed 定位造包含块，顶栏照旧贴着视口。 */
+  isolation: isolate;
   color: var(--text-body);
   padding-top: var(--fixed-header-height);
   font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* 背景分三层：body 自己的顶部色晕、两团极缓慢漂移的光斑、以及一层向下淡出的细点阵。两个伪元素都是 fixed，不参与 body 的 flex 布局；负 z-index 让它们压在 body 背景之上、正文之下。漂移动画由全局的 prefers-reduced-motion 规则统一关掉。 */
+body::before {
+  content: "";
+  position: fixed;
+  /* 光斑要漂出可视区之外，边缘才不会在动画里露出硬边 */
+  inset: -22vmax;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38vmax 30vmax at 14% 8%, var(--aurora-1), transparent 60%),
+    radial-gradient(34vmax 27vmax at 88% 20%, var(--aurora-2), transparent 58%),
+    radial-gradient(30vmax 22vmax at 52% 46%, var(--aurora-3), transparent 62%);
+  animation: auroraDrift 38s ease-in-out infinite alternate;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
+  background-size: 34px 34px;
+  /* 只在首屏附近留纹理，往下淡出，免得干扰正文 */
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 68%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 68%);
+}
+
+@keyframes auroraDrift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(2.5%, -2%, 0) scale(1.06);
+  }
 }
 
 body.menu-open {
@@ -188,6 +246,35 @@ button {
   font: inherit;
   -webkit-tap-highlight-color: transparent;
   tap-highlight-color: transparent;
+}
+
+/* 上面那条 outline: none 是给鼠标点击用的，键盘焦点得留一个看得见的环。各处 :focus-visible 原本只改背景色，和 hover 长得一样，光靠它分不出焦点在哪。用 :where() 保持零特异性，元素自己的 focus-visible 样式照样生效。 */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ==== 主题切换的圆形擦除 ==== */
+/* 新主题从刚点下的那个按钮为圆心铺开。只在 theme-transition 这个类挂着时生效，别的 view transition（如果以后有）不受影响。圆心和半径由脚本按按钮位置算好写进自定义属性；浏览器不支持 startViewTransition 或用户要求减少动效时，脚本直接跳过，配色瞬间切换。 */
+html.theme-transition::view-transition-old(root) {
+  animation: none;
+  /* 旧配色整张留在下面不动，新配色在它上面擦开，中间不会透出背景 */
+  z-index: 0;
+}
+
+html.theme-transition::view-transition-new(root) {
+  z-index: 1;
+  animation: themeReveal 0.52s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+
+@keyframes themeReveal {
+  from {
+    clip-path: circle(0 at var(--theme-origin-x, 50%) var(--theme-origin-y, 0));
+  }
+
+  to {
+    clip-path: circle(var(--theme-radius, 150vmax) at var(--theme-origin-x, 50%) var(--theme-origin-y, 0));
+  }
 }
 
 @keyframes riseIn {
@@ -312,6 +399,47 @@ html {
 
 .header-wrap.header--hidden {
   transform: translateY(-100%);
+}
+
+/* 换页要取该路由的代码块，慢网络下点完到内容换掉之间会有一段旧内容停在原地。这条进度线贴在顶栏下沿，只在这段等待长到看得出来时才出现。 */
+.route-progress {
+  position: fixed;
+  top: var(--fixed-header-height);
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 62;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.route-progress.is-active {
+  opacity: 1;
+}
+
+.route-progress::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, transparent, var(--primary-color));
+}
+
+.route-progress.is-active::before {
+  /* 拿不到真实进度，就用一条先快后慢、始终停在八成的曲线：它表示「在动」，而不是假装知道还剩多少 */
+  animation: routeProgress 2.4s cubic-bezier(0.1, 0.75, 0.25, 1) both;
+}
+
+@keyframes routeProgress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(0.8);
+  }
 }
 
 .header {
@@ -651,7 +779,16 @@ html {
 
 .card-lift:hover {
   transform: translateY(-2px);
-  box-shadow: var(--card-hover-shadow), inset 0 0 0 1px var(--hair);
+  /* 悬停时那圈发丝边染上主色，比只抬高两像素更能说明「这块能点/是一组的」 */
+  box-shadow: var(--card-hover-shadow), inset 0 0 0 1px var(--accent-ring);
+}
+
+.feature-card .feature-kicker {
+  transition: color 0.18s ease;
+}
+
+.feature-card:hover .feature-kicker {
+  color: var(--primary-color);
 }
 
 .btn {
@@ -747,6 +884,20 @@ html {
   inset: 0;
   background: radial-gradient(120% 90% at 78% -10%, var(--glow), transparent 62%);
   pointer-events: none;
+  /* 很慢的一次呼吸，只在余光里察觉得到；快到能看清就成了干扰 */
+  animation: glowBreathe 14s ease-in-out infinite alternate;
+}
+
+@keyframes glowBreathe {
+  from {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.08);
+  }
 }
 
 .hero-mark {
@@ -819,6 +970,8 @@ html {
 
 .hero-desc {
   margin: 22px 0 0;
+  /* 容器放宽后这段会拉到 60 多字一行，末行常常只剩两个字。按字数收住，孤字就不会出现。 */
+  max-width: 40em;
   font-size: 17px;
   line-height: 1.85;
   color: var(--text-content);
@@ -840,14 +993,14 @@ html {
   animation: riseIn 0.62s cubic-bezier(0.2, 0.7, 0.2, 1) 0.24s both;
 }
 
+/* 原本 align-self: stretch，高度由左边的标题栏决定而不是由内容决定 —— 四个短数字被撑成一个 408x380 的空盒子，成了首屏第二大的元素却说得最少。改成贴合内容、与标题顶端对齐：右侧多出来的是留白，不再是一个画了边框的空箱子。 */
 .hero-stats {
   min-width: 0;
-  align-self: stretch;
+  align-self: start;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-content: center;
-  gap: 26px 30px;
-  padding: 30px;
+  gap: 20px 26px;
+  padding: 24px 26px;
   border-radius: var(--radius-card);
   background: var(--card-2);
   box-shadow: var(--card-soft), inset 0 0 0 1px var(--hair);
@@ -855,7 +1008,7 @@ html {
 }
 
 .hero-stat-value {
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 600;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -863,7 +1016,7 @@ html {
 }
 
 .hero-stat-value.is-text {
-  font-size: 26px;
+  font-size: 23px;
 }
 
 .hero-stat-label {
@@ -887,6 +1040,9 @@ html {
 }
 
 .hero-screenshot-bar {
+  /* 窄屏上演示画面会被放大到超出自己的盒子，变换后的元素会盖到普通流内容上。标题栏定位一下才压得住它。 */
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -918,12 +1074,20 @@ html {
   color: var(--text-muted);
 }
 
+/*
+ * 演示画面裁到有内容的那一块。
+ *
+ * 素材是 1346x994 的整窗录屏，而真正要给人看的东西 —— 正在输入的那行字和候选窗 —— 只占其中约 17%，其余是空白 Word 页面和状态栏。整帧铺出来的结果是：这个产品最有辨识度的部分在首屏里只有邮票大小。
+ *
+ * 卡片自己有标题栏和圆角，"这是一个窗口"由外框负责表达，所以裁掉录屏下半截不会显得残缺。宽屏保留顶部窗口 chrome（它说明这是真实应用里的输入），只压掉空白正文。
+ */
 .hero-screenshot video,
 .hero-screenshot img {
   display: block;
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  aspect-ratio: 1346 / 660;
+  object-fit: cover;
+  object-position: 50% 0;
 }
 
 .hero-screenshot video {
@@ -992,6 +1156,7 @@ html {
 /* ==== HOME · OPEN SOURCE ==== */
 .open-card p {
   margin: 0 0 12px;
+  max-width: 42em;
   font-size: 15px;
   line-height: 1.8;
   color: var(--text-content);
@@ -1117,6 +1282,8 @@ html {
 }
 
 .page-hero-lead {
+  /* 页头摘要跟着正文栏的宽度走，不要横跨整幅 */
+  max-width: var(--content-measure);
   margin: 0;
   font-size: 17px;
   line-height: 1.8;
@@ -1125,6 +1292,295 @@ html {
 
 .page-hero-lead:empty {
   display: none;
+}
+
+/* ==== HOME · 社区（Star 趋势与贡献者） ==== */
+/* 趋势图独占一行：时间序列越宽越好读，而贡献者按头像网格横排比竖成一长条更省纵向空间 */
+.community-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.community-chart-card,
+.community-people-card {
+  padding: 22px 24px 18px;
+}
+
+.community-chart-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+
+.community-kicker {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--icon-color);
+}
+
+.community-figure {
+  display: block;
+  margin-top: 4px;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--lg-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.community-link {
+  flex: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+.community-people-note {
+  margin: 8px 0 14px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+/* 卡片里再套一条滚动条，等于把大部分贡献者藏在一个没人会去拖的地方。改成整块铺开、按宽度自动分列，谁在名单上一眼看得全。 */
+.community-people {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
+  gap: 2px;
+}
+
+.community-people a {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 11px;
+  align-items: center;
+  padding: 7px 9px;
+  border-radius: 12px;
+  color: var(--text-body);
+  transition: background-color 0.18s ease;
+}
+
+.community-people a:hover,
+.community-people a:focus-visible {
+  background: var(--card-3);
+  color: var(--text-body);
+}
+
+.community-people img {
+  grid-row: 1 / 3;
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--chip-bg);
+  box-shadow: inset 0 0 0 1px var(--hair-2);
+}
+
+.community-person-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--lg-heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.community-person-meta {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==== STAR 趋势图 ==== */
+/* 单条序列，所以不放图例 —— 标题已经说明画的是什么，一个色块的图例只是复述。数值只在末点直接标注，其余交给坐标轴、悬停提示和数据表。 */
+.star-chart {
+  margin-top: 6px;
+}
+
+.star-chart-frame {
+  position: relative;
+}
+
+.star-chart-frame svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.star-chart-grid {
+  stroke: var(--hair-2);
+  stroke-width: 1;
+}
+
+.star-chart-crosshair {
+  stroke: var(--hair-3);
+  stroke-width: 1;
+}
+
+/* 刻度和标签穿文字色，不穿序列色：浅色的图表色当文字用读不清 */
+.star-chart-tick {
+  fill: var(--text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.star-chart-endlabel {
+  fill: var(--lg-heading);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.star-chart-line {
+  fill: none;
+  stroke: var(--chart-series);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 描边用的是卡片底色而不是"给点画个边框"：点压在线上时靠这圈同色留白分开 */
+.star-chart-dot {
+  fill: var(--chart-series);
+  stroke: var(--card-bg);
+  stroke-width: 2;
+}
+
+.star-chart-tip {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: grid;
+  gap: 1px;
+  padding: 7px 11px;
+  border-radius: 10px;
+  background: var(--menu-bg);
+  box-shadow: var(--menu-shadow), inset 0 0 0 1px var(--hair);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.star-chart-tip strong {
+  font-size: 14px;
+  color: var(--lg-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.star-chart-tip span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.star-chart-table {
+  margin-top: 10px;
+}
+
+.star-chart-table summary {
+  display: inline-block;
+  padding: 3px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.star-chart-table summary:hover {
+  color: var(--primary-color);
+}
+
+.star-chart-table-scroll {
+  max-height: 220px;
+  margin-top: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+
+.star-chart-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.star-chart-table caption {
+  padding: 8px 12px;
+  text-align: left;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.star-chart-table th,
+.star-chart-table td {
+  padding: 6px 12px;
+  text-align: left;
+  font-weight: 400;
+  color: var(--text-content);
+  border-top: 1px solid var(--hair);
+}
+
+.star-chart-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--docs-table-head-bg);
+  color: var(--docs-table-head-text);
+  font-weight: 600;
+}
+
+
+
+/* ==== 触摸设备的点击区域 ==== */
+/*
+ * 手指的落点比鼠标光标粗得多，36px 的图标按钮在触屏上很容易点偏。这里只在 pointer: coarse 下生效，桌面端的视觉密度一点不变。
+ *
+ * 顶栏那几个圆形控件用一层透明的伪元素把可点范围补到 44px，圆圈本身还是 36px —— 放大真实尺寸会把顶栏撑松。菜单项、页脚 chip 这类本来就是一行一行的，直接加高更实在，也不会让相邻两项的热区互相重叠。
+ */
+@media (pointer: coarse) {
+  .header-github,
+  .theme-button,
+  .btn-toggle {
+    position: relative;
+  }
+
+  .header-github::after,
+  .theme-button::after,
+  .btn-toggle::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
+  .open-card .btn {
+    height: 44px;
+  }
+
+  .theme-option {
+    min-height: 44px;
+  }
+
+  .site-footer-chips a,
+  .site-footer-chips span,
+  .site-footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .community-link,
+  .star-chart-table summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
 }
 
 /* ==== FOOTER ==== */
@@ -1346,6 +1802,15 @@ html {
 }
 
 @media screen and (max-width: 640px) {
+  /* 390px 宽时整窗缩放后候选窗里的字只剩 7px 高，等于没有。这里推到正在输入的那行上，宁可看不见窗口边框，也要让人看清它在做什么。 */
+  .hero-screenshot video,
+  .hero-screenshot img {
+    aspect-ratio: 4 / 3;
+    object-position: 32% 34%;
+    transform: scale(1.75);
+    transform-origin: 32% 34%;
+  }
+
   .hero {
     padding-top: 3rem;
   }

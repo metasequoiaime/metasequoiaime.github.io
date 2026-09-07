@@ -16,9 +16,7 @@ export function metadataFromRelease(release, channel = 'stable') {
     /^MetasequoiaIME_Setup_v.*\.exe$/i.test(asset.name) && asset.size > 0 &&
     asset.browser_download_url?.startsWith(`https://github.com/${repository}/releases/download/${tag}/`));
   if (!installer) throw new Error('Published release has no Windows installer');
-  // The digest is computed by GitHub over the stored asset, so it is not something a release author
-  // types into the notes. Publishing it here gives the download page a checksum users can verify,
-  // which matters most while the installer is unsigned and a mirror is offered alongside it.
+  // The digest is computed by GitHub over the stored asset, so it is not something a release author types into the notes. Publishing it here gives the download page a checksum users can verify, which matters most while the installer is unsigned and a mirror is offered alongside it.
   const digest = typeof installer.digest === 'string' && installer.digest.startsWith('sha256:')
     ? installer.digest.slice('sha256:'.length)
     : null;
@@ -32,8 +30,7 @@ export function metadataFromRelease(release, channel = 'stable') {
   };
 }
 
-// Windows currently distributes public previews. This explicit policy preserves that channel;
-// switching to stable is a reviewed policy change, not an automatic interpretation of "latest".
+// Windows currently distributes public previews. This explicit policy preserves that channel; switching to stable is a reviewed policy change, not an automatic interpretation of "latest".
 const channel = 'preview';
 
 export function selectRelease(releases, selectedChannel) {
