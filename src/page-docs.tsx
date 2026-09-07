@@ -155,6 +155,25 @@ const useTocScrollSpy = (
     };
   }, [toc, articleRef]);
 
+  /** 量出当前项的位置和高度，交给目录那块滑动胶囊。目录项高度不一（二三级字号不同），所以尺寸也要一起给。 */
+  useLayoutEffect(() => {
+    const element = tocRef.current;
+    if (!element) return;
+
+    // 依赖里带上 toc：换平台会整份重建目录，条目位置全变。两份指南可能出现同名小节（都有「下载与安装」），只盯着 activeId 的话那种情况不会重算。
+    const link =
+      activeId && toc.length > 0 ? element.querySelector<HTMLElement>(`a[href="#${CSS.escape(activeId)}"]`) : null;
+
+    if (!link) {
+      element.style.setProperty("--toc-on", "0");
+      return;
+    }
+
+    element.style.setProperty("--toc-y", `${link.offsetTop}px`);
+    element.style.setProperty("--toc-h", `${link.offsetHeight}px`);
+    element.style.setProperty("--toc-on", "1");
+  }, [activeId, toc, tocRef]);
+
   /** 侧栏自己可滚动（窄屏时是目录本身），高亮项跑出可视区就带进来 */
   useLayoutEffect(() => {
     if (!activeId) return;

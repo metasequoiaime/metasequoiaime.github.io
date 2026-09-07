@@ -95,6 +95,9 @@ export const router = createRouter({
   trailingSlash: "always",
   defaultNotFoundComponent: NotFoundPage,
   scrollRestoration: true,
+  // 鼠标停到链接上就开始取该路由的代码块。限速网络下实测，不预取的话点完要等 1.4 秒内容才换，这段等待被挪到了用户还在瞄准的时候。真赶上没取完，顶栏下的进度线会顶上。
+  defaultPreload: "intent",
+  defaultPreloadDelay: 50,
 });
 
 declare module "@tanstack/react-router" {

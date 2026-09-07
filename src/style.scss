@@ -10,7 +10,7 @@
   box-sizing: border-box;
 }
 
-/* 跨文档 view transition 在这套站点上不可用：内容页正文由脚本渲染，新页快照可能拍到空正文；给正文脚本加 blocking="render" 又会让点击跳转后渲染永久阻塞。换页动画改用页头自己的入场动画 + 导航胶囊滑动，行为确定，也不依赖浏览器支持。 */
+/* 换页动画不走 view transition：页头自己的入场动画 + 导航胶囊滑动已经把「换页了」说清楚，而 view transition 会把整份文档拍成静态快照，胶囊那段滑动反而会被冻住。view transition 只用在切换主题上 —— 那一下整页配色本来就要重画，也没有正在跑的动画会被打断。（迁移到客户端路由之前，跨文档 view transition 是另一个问题：正文由脚本渲染，新页快照会拍到空正文。现在正文在换页时已经在 DOM 里，这个限制不再存在。） */
 
 /* ==== THEME TOKENS ==== */
 @mixin theme-dark {
@@ -51,6 +51,10 @@
   --accent-soft: rgba(110, 160, 255, 0.16);
   --accent-ring: rgba(110, 160, 255, 0.22);
   --glow: rgba(110, 160, 255, 0.16);
+  --focus-ring: #6ea0ff;
+  --aurora-1: rgba(110, 160, 255, 0.1);
+  --aurora-2: rgba(150, 120, 255, 0.055);
+  --dot: rgba(255, 255, 255, 0.09);
   --feature-grad: linear-gradient(160deg, #373e4d 0%, #2e2e2e 62%);
   --theme-hover-bg: rgba(110, 160, 255, 0.12);
 
@@ -106,6 +110,10 @@
   --accent-soft: rgba(15, 108, 189, 0.12);
   --accent-ring: rgba(15, 108, 189, 0.28);
   --glow: rgba(15, 108, 189, 0.13);
+  --focus-ring: #0f6cbd;
+  --aurora-1: rgba(15, 108, 189, 0.075);
+  --aurora-2: rgba(96, 84, 220, 0.045);
+  --dot: rgba(15, 23, 32, 0.09);
   --feature-grad: linear-gradient(160deg, #eef3fa 0%, #ffffff 62%);
   --theme-hover-bg: rgba(15, 108, 189, 0.1);
 
@@ -156,10 +164,49 @@ body {
   background-color: var(--bg);
   background-image: linear-gradient(180deg, var(--page-tint) 0%, transparent 620px);
   background-attachment: fixed;
+  /* 让 body 自己成为层叠上下文，下面两层负 z-index 的背景才会画在 body 背景色之上。不加这行，它们会落进 html 的层叠上下文里，被 body 的不透明底色整个盖掉 —— 看起来像没写。isolation 不会给 fixed 定位造包含块，顶栏照旧贴着视口。 */
+  isolation: isolate;
   color: var(--text-body);
   padding-top: var(--fixed-header-height);
   font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* 背景分三层：body 自己的顶部色晕、两团极缓慢漂移的光斑、以及一层向下淡出的细点阵。两个伪元素都是 fixed，不参与 body 的 flex 布局；负 z-index 让它们压在 body 背景之上、正文之下。漂移动画由全局的 prefers-reduced-motion 规则统一关掉。 */
+body::before {
+  content: "";
+  position: fixed;
+  /* 光斑要漂出可视区之外，边缘才不会在动画里露出硬边 */
+  inset: -22vmax;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38vmax 30vmax at 14% 10%, var(--aurora-1), transparent 62%),
+    radial-gradient(32vmax 26vmax at 86% 24%, var(--aurora-2), transparent 60%);
+  animation: auroraDrift 38s ease-in-out infinite alternate;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
+  background-size: 34px 34px;
+  /* 只在首屏附近留纹理，往下淡出，免得干扰正文 */
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 68%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 68%);
+}
+
+@keyframes auroraDrift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(2.5%, -2%, 0) scale(1.06);
+  }
 }
 
 body.menu-open {
@@ -188,6 +235,35 @@ button {
   font: inherit;
   -webkit-tap-highlight-color: transparent;
   tap-highlight-color: transparent;
+}
+
+/* 上面那条 outline: none 是给鼠标点击用的，键盘焦点得留一个看得见的环。各处 :focus-visible 原本只改背景色，和 hover 长得一样，光靠它分不出焦点在哪。用 :where() 保持零特异性，元素自己的 focus-visible 样式照样生效。 */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* ==== 主题切换的圆形擦除 ==== */
+/* 新主题从刚点下的那个按钮为圆心铺开。只在 theme-transition 这个类挂着时生效，别的 view transition（如果以后有）不受影响。圆心和半径由脚本按按钮位置算好写进自定义属性；浏览器不支持 startViewTransition 或用户要求减少动效时，脚本直接跳过，配色瞬间切换。 */
+html.theme-transition::view-transition-old(root) {
+  animation: none;
+  /* 旧配色整张留在下面不动，新配色在它上面擦开，中间不会透出背景 */
+  z-index: 0;
+}
+
+html.theme-transition::view-transition-new(root) {
+  z-index: 1;
+  animation: themeReveal 0.52s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+}
+
+@keyframes themeReveal {
+  from {
+    clip-path: circle(0 at var(--theme-origin-x, 50%) var(--theme-origin-y, 0));
+  }
+
+  to {
+    clip-path: circle(var(--theme-radius, 150vmax) at var(--theme-origin-x, 50%) var(--theme-origin-y, 0));
+  }
 }
 
 @keyframes riseIn {
@@ -312,6 +388,47 @@ html {
 
 .header-wrap.header--hidden {
   transform: translateY(-100%);
+}
+
+/* 换页要取该路由的代码块，慢网络下点完到内容换掉之间会有一段旧内容停在原地。这条进度线贴在顶栏下沿，只在这段等待长到看得出来时才出现。 */
+.route-progress {
+  position: fixed;
+  top: var(--fixed-header-height);
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 62;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.route-progress.is-active {
+  opacity: 1;
+}
+
+.route-progress::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, transparent, var(--primary-color));
+}
+
+.route-progress.is-active::before {
+  /* 拿不到真实进度，就用一条先快后慢、始终停在八成的曲线：它表示「在动」，而不是假装知道还剩多少 */
+  animation: routeProgress 2.4s cubic-bezier(0.1, 0.75, 0.25, 1) both;
+}
+
+@keyframes routeProgress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(0.8);
+  }
 }
 
 .header {
@@ -651,7 +768,16 @@ html {
 
 .card-lift:hover {
   transform: translateY(-2px);
-  box-shadow: var(--card-hover-shadow), inset 0 0 0 1px var(--hair);
+  /* 悬停时那圈发丝边染上主色，比只抬高两像素更能说明「这块能点/是一组的」 */
+  box-shadow: var(--card-hover-shadow), inset 0 0 0 1px var(--accent-ring);
+}
+
+.feature-card .feature-kicker {
+  transition: color 0.18s ease;
+}
+
+.feature-card:hover .feature-kicker {
+  color: var(--primary-color);
 }
 
 .btn {
@@ -747,6 +873,20 @@ html {
   inset: 0;
   background: radial-gradient(120% 90% at 78% -10%, var(--glow), transparent 62%);
   pointer-events: none;
+  /* 很慢的一次呼吸，只在余光里察觉得到；快到能看清就成了干扰 */
+  animation: glowBreathe 14s ease-in-out infinite alternate;
+}
+
+@keyframes glowBreathe {
+  from {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.08);
+  }
 }
 
 .hero-mark {

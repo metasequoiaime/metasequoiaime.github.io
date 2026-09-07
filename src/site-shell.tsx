@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation } from "@tanstack/react-router";
+import { Link, Outlet, useLocation, useRouterState } from "@tanstack/react-router";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { THEME_CHOICES, THEME_LABELS, useTheme } from "./theme";
 
@@ -84,8 +84,11 @@ function ThemeSwitcher() {
             role="menuitemradio"
             aria-checked={theme === choice}
             onClick={() => {
-              setTheme(choice);
+              // 关菜单要排在换主题前面：setTheme 里的 flushSync 会把这之前排队的更新一起冲掉，菜单才不会留在擦除后的新画面里。
               setIsOpen(false);
+              // 擦除从主题按钮的中心铺开，而不是从被点的那个菜单项 —— 按钮才是这个控件在页面上的位置
+              const box = buttonRef.current?.getBoundingClientRect();
+              setTheme(choice, box && { x: box.left + box.width / 2, y: box.top + box.height / 2 });
             }}
           >
             {THEME_LABELS[choice]}
@@ -94,6 +97,33 @@ function ThemeSwitcher() {
       </div>
     </div>
   );
+}
+
+/**
+ * 顶栏下沿的换页进度线。
+ *
+ * 路由预取通常让换页在一两帧内完成，那种时候不该闪一下进度条；只有等待长到看得出来才显示。这段时间里旧内容一直留在原地 —— 比清空成骨架屏更不容易让人以为点击没生效。
+ */
+function RouteProgress() {
+  const isPending = useRouterState({ select: (state) => state.status === "pending" });
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (!isPending) {
+      setIsVisible(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setIsVisible(true);
+    }, 150);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [isPending]);
+
+  return <div className={`route-progress${isVisible ? " is-active" : ""}`} aria-hidden="true" />;
 }
 
 function NavMenu({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
@@ -318,6 +348,7 @@ export function SiteShell() {
       </div>
 
       <NavMenu isOpen={menuIsOpen} onClose={closeMenu} />
+      <RouteProgress />
 
       <Outlet />
 

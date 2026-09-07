@@ -12,6 +12,15 @@
   overflow-anchor: none;
 }
 
+/* 页头有自己的入场动画，正文这两块原本是硬生生出现的。接在页头后面依次抬起来，整页才像一起进场。切换平台时这两个元素一直挂着，动画不会重跑 —— 换标签不该整页再动一遍。 */
+.docs-shell > .docs-sidebar {
+  animation: riseIn 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both;
+}
+
+.docs-shell > .docs-article {
+  animation: riseIn 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 0.16s both;
+}
+
 .docs-sidebar {
   position: sticky;
   top: calc(var(--fixed-header-height) + 0.5rem);
@@ -69,11 +78,34 @@
 }
 
 .docs-toc {
+  position: relative;
   display: grid;
   gap: 2px;
 }
 
+/* 当前小节的底色做成一块会滑的胶囊，跟着正文滚动在目录里移动。位置和高度由脚本量好写进自定义属性 —— 目录项高度不一（二级和三级字号不同），照搬导航那种纯 CSS 的做法量不出来。 */
+.docs-toc::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--toc-h, 34px);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  opacity: var(--toc-on, 0);
+  transform: translateY(var(--toc-y, 0));
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1),
+    height 0.28s cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 0.2s ease;
+  pointer-events: none;
+}
+
 .docs-toc a {
+  /* 滑动胶囊是定位元素，会盖在普通流内容之上；目录项自己也定位一下才压得住它 */
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   min-height: 34px;
@@ -94,9 +126,9 @@
   background: var(--card-3);
 }
 
+/* 底色交给上面那块会滑的胶囊，这里只留文字颜色；两边都画背景的话，滑动过程中会同时亮起两处 */
 .docs-toc a.is-active {
   color: var(--lg-heading);
-  background: var(--accent-soft);
 }
 
 .docs-toc-subitem {
