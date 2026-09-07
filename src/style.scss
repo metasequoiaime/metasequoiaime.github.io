@@ -52,9 +52,10 @@
   --accent-ring: rgba(110, 160, 255, 0.22);
   --glow: rgba(110, 160, 255, 0.16);
   --focus-ring: #6ea0ff;
-  --aurora-1: rgba(110, 160, 255, 0.1);
-  --aurora-2: rgba(150, 120, 255, 0.055);
-  --dot: rgba(255, 255, 255, 0.09);
+  --aurora-1: rgba(110, 160, 255, 0.24);
+  --aurora-2: rgba(150, 120, 255, 0.15);
+  --aurora-3: rgba(96, 200, 255, 0.09);
+  --dot: rgba(255, 255, 255, 0.075);
   --feature-grad: linear-gradient(160deg, #373e4d 0%, #2e2e2e 62%);
   --theme-hover-bg: rgba(110, 160, 255, 0.12);
 
@@ -111,9 +112,10 @@
   --accent-ring: rgba(15, 108, 189, 0.28);
   --glow: rgba(15, 108, 189, 0.13);
   --focus-ring: #0f6cbd;
-  --aurora-1: rgba(15, 108, 189, 0.075);
-  --aurora-2: rgba(96, 84, 220, 0.045);
-  --dot: rgba(15, 23, 32, 0.09);
+  --aurora-1: rgba(15, 108, 189, 0.17);
+  --aurora-2: rgba(96, 84, 220, 0.1);
+  --aurora-3: rgba(0, 160, 220, 0.07);
+  --dot: rgba(15, 23, 32, 0.07);
   --feature-grad: linear-gradient(160deg, #eef3fa 0%, #ffffff 62%);
   --theme-hover-bg: rgba(15, 108, 189, 0.1);
 
@@ -181,8 +183,9 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(38vmax 30vmax at 14% 10%, var(--aurora-1), transparent 62%),
-    radial-gradient(32vmax 26vmax at 86% 24%, var(--aurora-2), transparent 60%);
+    radial-gradient(38vmax 30vmax at 14% 8%, var(--aurora-1), transparent 60%),
+    radial-gradient(34vmax 27vmax at 88% 20%, var(--aurora-2), transparent 58%),
+    radial-gradient(30vmax 22vmax at 52% 46%, var(--aurora-3), transparent 62%);
   animation: auroraDrift 38s ease-in-out infinite alternate;
 }
 
